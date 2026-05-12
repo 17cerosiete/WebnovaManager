@@ -23,29 +23,45 @@ define('DB_PASS', '');             // Password (XAMPP por defecto: vacío)
 define('DB_NAME', 'webnova_db');   // Nombre de la BD
 
 // =====================================================
-// CREAR CONEXIÓN
+// CREAR CONEXIÓN CON REINTENTOS
 // =====================================================
 
-// new mysqli() crea una conexión a MySQL
-// Parámetros: (host, usuario, password, nombreBD)
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+// Reintentos automáticos en caso de que MySQL esté iniciando
+// Esto resuelve el problema de "después de reiniciar XAMPP falla el login"
+$maxIntentos = 3;
+$intento = 0;
+$conn = null;
 
-// =====================================================
-// VERIFICAR ERRORES DE CONEXIÓN
-// =====================================================
-
-if ($conn->connect_error) {
-  // Si hay error, mostrar qué pasó
-  // En producción: esto sería un log, no mostrar al usuario
-  die("❌ Error de conexión a BD: " . $conn->connect_error);
+while ($intento < $maxIntentos && $conn === null) {
+  $intento++;
+  
+  // Intentar conexión
+  $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+  
+  if ($conn->connect_error) {
+    if ($intento < $maxIntentos) {
+      // Si no es el último intento, esperar 1 segundo y reintentar
+      sleep(1);
+      $conn = null;
+    } else {
+      // Último intento falló: mostrar error
+      die("❌ Error de conexión a BD después de $maxIntentos intentos: " . $conn->connect_error);
+    }
+  }
 }
 
 // =====================================================
-// CONFIGURAR CHARACTER SET
+// VERIFICAR CHARSET Y CONFIGURACIÓN CRÍTICA
 // =====================================================
 
-// Usar UTF-8 para soportar tildes, emojis, etc.
+// Usar UTF-8mb4 para soportar tildes, emojis, caracteres especiales
+// ⚠️ CRÍTICO: Esto previene errores de password_verify() por charset inconsistente
 $conn->set_charset("utf8mb4");
+
+// Validar que la conexión está lista
+if (!$conn->ping()) {
+  die("❌ Conexión a BD no está activa. Intenta reiniciar MySQL.");
+}
 
 // =====================================================
 // RETORNAR CONEXIÓN

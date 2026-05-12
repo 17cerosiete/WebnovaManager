@@ -16,12 +16,12 @@
  */
 
 // =====================================================
-// 1. INICIAR SESIÓN PHP
+// 1. INICIAR SESIÓN PHP (CON CONFIGURACIÓN ROBUSTA)
 // =====================================================
 
 // session_start() debe ser ANTES de cualquier output
-// Carga la sesión del usuario (o crea una nueva si no existe)
-session_start();
+// Usar configuración robusta de sesiones
+require_once '../config/sessions.php';
 
 // =====================================================
 // 2. REQUERIR CONEXIÓN A BD
@@ -30,7 +30,31 @@ session_start();
 // Importar la conexión de config/db.php
 require_once '../config/db.php';
 
-// Ahora disponemos de: $conn (conexión MySQLi)
+// =====================================================
+// 2.5 VALIDACIÓN CRÍTICA DE CONEXIÓN Y CHARSET
+// =====================================================
+
+// Validar que la conexión se estableció
+if (!$conn || !$conn->ping()) {
+  http_response_code(503); // 503 Service Unavailable
+  die(json_encode([
+    'success' => false,
+    'error' => 'Base de datos no disponible. Intenta en unos segundos.'
+  ]));
+}
+
+// Re-validar charset para asegurar compatibilidad
+// Esto previene errores raros después de reiniciar XAMPP
+$conn->set_charset("utf8mb4");
+
+// Verificar que el charset está correcto
+if ($conn->get_charset()->charset !== "utf8mb4") {
+  http_response_code(500);
+  die(json_encode([
+    'success' => false,
+    'error' => 'Error de configuración del servidor. Contacta al administrador.'
+  ]));
+}
 
 // =====================================================
 // 3. PROCESAR SOLO REQUESTS POST
@@ -113,7 +137,7 @@ $usuario = $result->fetch_assoc();
 //   'id' => 1,
 //   'nombre' => 'Carlos González',
 //   'email' => 'carlos@webnova.com',
-//   'password' => '$2y$10$N9qo8uL...',  // Hash BCRYPT
+//   'password' => '$2y$10$slYQmyNdGzin7olVA0/O2OPST9EF/ufuCvii/V9/f77QwzvjlHYeK',  // Hash BCRYPT de '0000'
 //   'rol' => 'admin'
 // ]
 
@@ -137,6 +161,9 @@ if (!password_verify($password, $usuario['password'])) {
 
 // Si llegamos aquí: email + contraseña son correctos ✓
 
+// REGENERAR ID DE SESIÓN por seguridad (prevención de session fixation)
+session_regenerate_id(true);
+
 // Guardar datos del usuario EN LA SESIÓN
 // $_SESSION es un array global que persiste entre páginas
 $_SESSION['usuario_id'] = $usuario['id'];
@@ -145,8 +172,10 @@ $_SESSION['usuario_email'] = $usuario['email'];
 $_SESSION['usuario_rol'] = $usuario['rol'];
 $_SESSION['logueado'] = true;
 
-// Opcional: guardar hora de login
+// Guardar hora de login y validación
 $_SESSION['login_tiempo'] = time();
+$_SESSION['_session_ip'] = $_SERVER['REMOTE_ADDR'];
+$_SESSION['_session_ua'] = $_SERVER['HTTP_USER_AGENT'];
 
 // =====================================================
 // 10. RESPONDER ÉXITO

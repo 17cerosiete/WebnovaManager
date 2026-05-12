@@ -37,7 +37,7 @@ const DB = {
       {
         id: 1,
         email: 'admin@webnova.com',
-        password: 'admin123', // En producción: bcrypt hash
+        password: '0000', // En producción: usar environment variables
         name: 'Administrador',
         role: 'admin',
         createdAt: new Date().toISOString()

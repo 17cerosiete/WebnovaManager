@@ -35,7 +35,7 @@ function registrar_auditoria($usuario_id, $accion, $tabla, $registro_id, $descri
     $sql = "INSERT INTO logs_auditoria (usuario_id, accion, tabla, registro_id, descripcion, ip_address)
             VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issis s", $usuario_id, $accion, $tabla, $registro_id, $descripcion, $ip);
+    $stmt->bind_param("ississ", $usuario_id, $accion, $tabla, $registro_id, $descripcion, $ip);
     $stmt->execute();
     $stmt->close();
 }

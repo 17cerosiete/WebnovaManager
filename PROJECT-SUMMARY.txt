@@ -11,11 +11,11 @@ c:\Users\vspc\Desktop\TFG\WebNovaManager-CMS\
 ═══════════════════════════════════════════════════════════════════════════════════
 
 PASO 1: Abrir Login
-└─ Abre en navegador: file:///c:\Users\vspc\Desktop\TFG\WebNovaManager-CMS\admin\index.html
+└─ Abre en navegador: http://localhost/WebnovaManager/admin/index.html
 
 PASO 2: Credenciales
 ├─ Email: admin@webnova.com
-├─ Contraseña: admin123
+├─ Contraseña: 0000
 └─ Haz clic en "Iniciar Sesión"
 
 PASO 3: Ver Dashboard
@@ -29,7 +29,7 @@ PASO 4: Explorar
 
 PASO 5: Ver Sitio Público
 └─ Haz clic en "👁️ Ver Sitio Público" en el dashboard
-    (O abre: file:///c:\Users\vspc\Desktop\TFG\WebNovaManager-CMS\public\index.html)
+    (O abre: http://localhost/WebnovaManager/public/index.html)
 
 ═══════════════════════════════════════════════════════════════════════════════════
 📁 ESTRUCTURA DEL PROYECTO
@@ -79,7 +79,7 @@ WebNovaManager-CMS/
 
 1. PANEL DE LOGIN
    └─ Autenticación simulada con email/contraseña
-      Credenciales: admin@webnova.com / admin123
+      Credenciales: admin@webnova.com / 0000
 
 2. DASHBOARD
    ├─ Estadísticas en tiempo real (4 KPIs)
@@ -159,7 +159,7 @@ USUARIO PRE-CARGADO (1):
 - Email: admin@webnova.com
 - Nombre: Administrador
 - Rol: admin
-- Contraseña: admin123
+- Contraseña: 0000
 
 ═══════════════════════════════════════════════════════════════════════════════════
 🔧 FUNCIONALIDADES DETALLADAS
@@ -167,7 +167,7 @@ USUARIO PRE-CARGADO (1):
 
 1. AUTENTICACIÓN
    ├─ Login en admin/index.html
-   ├─ Credenciales: admin@webnova.com / admin123
+   ├─ Credenciales: admin@webnova.com / 0000
    ├─ Sesión almacenada en localStorage
    ├─ Redirección automática si no autenticado
    ├─ Cierre de sesión (Cerrar Sesión)
@@ -470,7 +470,7 @@ Documentación: /docs/
 ═══════════════════════════════════════════════════════════════════════════════════
 
 □ Abrir admin/index.html en navegador
-□ Iniciar sesión con admin@webnova.com / admin123
+□ Iniciar sesión con admin@webnova.com / 0000
 □ Ver el dashboard
 □ Crear una nueva página
 □ Editar una página existente

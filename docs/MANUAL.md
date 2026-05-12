@@ -5,13 +5,13 @@
 ### Paso 1: Abrir el Login
 Abre en tu navegador:
 ```
-file:///c:\Users\vspc\Desktop\TFG\WebNovaManager-CMS\admin\index.html
+http://localhost/WebnovaManager/admin/index.html
 ```
 
 ### Paso 2: Iniciar Sesión
 **Credenciales de prueba:**
 - Email: `admin@webnova.com`
-- Contraseña: `admin123`
+- Contraseña: `0000`
 
 ### Paso 3: Explorar el Dashboard
 Verás un panel con 4 secciones:

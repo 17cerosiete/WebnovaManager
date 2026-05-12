@@ -167,7 +167,7 @@ password: String // Contraseña (hash en producción)
 
 **Ejemplo:**
 ```javascript
-const session = DB.login('admin@webnova.com', 'admin123');
+const session = DB.login('admin@webnova.com', '0000');
 if (session) {
   console.log('Login exitoso:', session.user.name);
 }

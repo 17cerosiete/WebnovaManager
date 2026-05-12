@@ -7,90 +7,81 @@
  *
  * Uso en cualquier página protegida:
  *   <?php
- *   require_once '../middleware/auth.php'; // Poner al inicio
- *   // Si no está logueado, esto redirige a login.html
+ *   require_once '../middleware/auth.php';
+ *   // Si no está logueado, esto redirige a login
  *   // Si está logueado, continúa con la página
  *   ?>
- *
- * FLUJO:
- * 1. Verificar si sesión existe
- * 2. ¿Usuario logueado? → Continuar
- * 3. ¿No logueado? → Redirigir a login
- *
- * Esto es SEGURIDAD BÁSICA pero EFECTIVA
  */
 
 // =====================================================
-// 1. INICIAR SESIÓN
+// 1. INICIAR SESIÓN (CON CONFIGURACIÓN ROBUSTA)
 // =====================================================
 
-// session_start() carga la sesión actual
-// Si no existe, crea una nueva
-session_start();
+// Usar configuración robusta de sesiones
+require_once dirname(__FILE__) . '/../config/sessions.php';
 
 // =====================================================
 // 2. VERIFICAR SI USUARIO ESTÁ LOGUEADO
 // =====================================================
 
-// ¿Existe la variable de sesión que creamos en login.php?
 if (!isset($_SESSION['logueado']) || $_SESSION['logueado'] !== true) {
-  // NO está logueado
-
-  // Destruir cualquier dato de sesión (seguridad)
-  session_destroy();
-
-  // Redirigir a login (ruta relativa al web root)
-  header('Location: /WebnovaManager/admin/index.html');
-
-  // Detener ejecución del resto de la página
-  exit();
-}
-
-// Si llegamos aquí: ¡Usuario está logueado! ✓
-
-// =====================================================
-// 3. DATOS DISPONIBLES
-// =====================================================
-
-// En cualquier página que use este middleware:
-// $_SESSION['usuario_id']     - ID del usuario
-// $_SESSION['usuario_nombre'] - Nombre
-// $_SESSION['usuario_email']  - Email
-// $_SESSION['usuario_rol']    - Rol (admin, editor, usuario)
-// $_SESSION['logueado']       - true
-
-// Ejemplo en dashboard.html (después):
-// <h1>Bienvenido <?php echo $_SESSION['usuario_nombre']; ?></h1>
-
-// =====================================================
-// 4. VERIFICAR ROL (OPCIONAL)
-// =====================================================
-
-// Función auxiliar: verificar si usuario es admin
-function esAdmin() {
-  return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] === 'admin';
-}
-
-// Función: verificar si usuario es editor
-function esEditor() {
-  return isset($_SESSION['usuario_rol']) &&
-         ($_SESSION['usuario_rol'] === 'editor' || $_SESSION['usuario_rol'] === 'admin');
-}
-
-// Función: redirigir si no es admin
-function requiereAdmin() {
-  if (!esAdmin()) {
-    header('Location: ../admin/dashboard.html?error=permiso_denegado');
+    // NO está logueado - redirigir
+    session_destroy();
+    
+    // Construir URL de login robusta
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $baseUrl = dirname(dirname($_SERVER['SCRIPT_NAME']));
+    if ($baseUrl === '\\' || $baseUrl === '/' || $baseUrl === '.') {
+        $baseUrl = '';
+    }
+    
+    $loginUrl = $protocol . '://' . $host . $baseUrl . '/admin/index.html';
+    header('Location: ' . $loginUrl);
     exit();
-  }
 }
 
-// EJEMPLO DE USO EN PÁGINAS:
-//
-// En admin/usuarios.php (solo para admins):
-//   <?php
-//   require_once '../middleware/auth.php';
-//   requiereAdmin(); // Si no es admin: redirige
-//   ?>
+// =====================================================
+// 3. USUARIO ESTÁ AUTENTICADO - DISPONIBILIZAR FUNCIONES
+// =====================================================
+
+// Función: ¿Es administrador?
+function esAdmin() {
+    return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] === 'admin';
+}
+
+// Función: ¿Es editor o admin?
+function esEditor() {
+    return isset($_SESSION['usuario_rol']) &&
+           ($_SESSION['usuario_rol'] === 'editor' || $_SESSION['usuario_rol'] === 'admin');
+}
+
+// Función: Obtener información del usuario
+function obtener_usuario_info() {
+    return [
+        'id' => $_SESSION['usuario_id'] ?? null,
+        'nombre' => $_SESSION['usuario_nombre'] ?? null,
+        'email' => $_SESSION['usuario_email'] ?? null,
+        'rol' => $_SESSION['usuario_rol'] ?? null,
+    ];
+}
+
+// Función: Redirigir si NO es admin
+function requiereAdmin() {
+    if (!esAdmin()) {
+        header('Location: dashboard.php?error=permiso_denegado');
+        exit();
+    }
+}
+
+// Función: Redirigir si NO es editor
+function requiereEditor() {
+    if (!esEditor()) {
+        header('Location: dashboard.php?error=permiso_denegado');
+        exit();
+    }
+}
 
 ?>
+
+
