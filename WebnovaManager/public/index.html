@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WebNova Manager - Plataforma moderna de gestión de contenidos">
+  <title>WebNova Manager - CMS Moderno</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <style>
+    /* Public site styles */
+    body {
+      background: white;
+    }
+    
+    header {
+      background: white;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .navbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    
+    .nav-menu {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .nav-menu a {
+      color: #1f2937;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 250ms;
+    }
+    
+    .nav-menu a:hover {
+      color: #2563eb;
+    }
+    
+    .admin-link {
+      background: #2563eb;
+      color: white !important;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+    }
+    
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+    
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+    
+    .page-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      transition: all 250ms;
+      cursor: pointer;
+    }
+    
+    .page-card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
+    }
+    
+    .page-card h3 {
+      margin-top: 0;
+      color: #2563eb;
+    }
+    
+    .page-card a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .page-card a:hover {
+      text-decoration: underline;
+    }
+    
+    .blog-section {
+      background: #f9fafb;
+      padding: 3rem 2rem;
+      margin-bottom: 2rem;
+      border-radius: 0.75rem;
+    }
+    
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+    
+    .post-card {
+      background: white;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 250ms;
+    }
+    
+    .post-card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
+    }
+    
+    .post-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      min-height: 80px;
+      display: flex;
+      align-items: flex-end;
+    }
+    
+    .post-body {
+      padding: 1.5rem;
+    }
+    
+    .post-title {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.25rem;
+      color: #1f2937;
+    }
+    
+    .post-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+    
+    .post-category {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #2563eb;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    
+    .post-excerpt {
+      color: #4b5563;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    
+    .post-stats {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      padding-top: 1rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    footer {
+      background: #1f2937;
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    
+    footer p {
+      margin: 0;
+    }
+    
+    .admin-notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 0.375rem;
+    }
+    
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .nav-menu {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .hero h1 {
+        font-size: 1.75rem;
+      }
+      
+      .hero p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">📊 WebNova Manager</a>
+      <ul class="nav-menu" id="mainNav">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="#pages">Páginas</a></li>
+        <li><a href="#blog">Blog</a></li>
+        <li><a href="../admin/index.html" class="admin-link">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <!-- Hero -->
+  <section class="hero">
+    <h1>WebNova Manager</h1>
+    <p>Plataforma moderna de gestión de contenidos para tu negocio</p>
+    <p style="font-size: 1rem; opacity: 0.9;">CMS de última generación con diseño mobile-first, seguridad RGPD-compliant y tecnologías emergentes</p>
+  </section>
+  
+  <!-- Main Content -->
+  <div class="container">
+    <div class="admin-notice">
+      <strong>👤 Eres administrador:</strong> Para gestionar contenidos, accede al <a href="admin/dashboard.html">panel de administración</a>
+    </div>
+  </div>
+  
+  <!-- Pages Section -->
+  <div class="container" id="pages">
+    <h2>Páginas Principales</h2>
+    <div class="pages-grid" id="pagesContainer"></div>
+  </div>
+  
+  <!-- Blog Section -->
+  <section class="blog-section" id="blog">
+    <div class="container">
+      <h2>Últimos Artículos</h2>
+      <div class="blog-grid" id="postsContainer"></div>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 WebNova Digital S.L. - Prototipo de CMS para TFG</p>
+      <p style="font-size: 0.875rem; margin-top: 1rem;">Sistema moderno de gestión de contenidos con enfoque en sostenibilidad y digitalización</p>
+    </div>
+  </footer>
+  
+  <script src="../assets/js/db.js"></script>
+  <script>
+    // Cargar páginas
+    function loadPages() {
+      const pages = DB.getPages('published');
+      const html = pages.slice(0, 3).map(page => `
+        <div class="page-card">
+          <h3>${page.title}</h3>
+          <p>${page.content.substring(0, 150)}...</p>
+          <a href="#" onclick="alert('Vista detallada de página'); return false;">Leer más →</a>
+        </div>
+      `).join('');
+      
+      document.getElementById('pagesContainer').innerHTML = html;
+    }
+    
+    // Cargar artículos
+    function loadPosts() {
+      const posts = DB.getPosts('published');
+      const html = posts.slice(0, 6).map(post => {
+        const category = DB.getCategoryById(post.categoryId);
+        const date = new Date(post.createdAt).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        
+        return `
+          <div class="post-card">
+            <div class="post-header">
+              <h3 class="post-title">${post.title}</h3>
+            </div>
+            <div class="post-body">
+              <div class="post-meta">
+                <span>${date}</span>
+                ${category ? `<span class="post-category">${category.name}</span>` : ''}
+              </div>
+              <p class="post-excerpt">${post.excerpt}</p>
+              <div class="post-stats">
+                <span>👁️ ${post.views} vistas</span>
+                <span>💬 ${post.comments} comentarios</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('postsContainer').innerHTML = html;
+    }
+    
+    // Inicializar
+    DB.initialize();
+    loadPages();
+    loadPosts();
+  </script>
+</body>
+</html>
