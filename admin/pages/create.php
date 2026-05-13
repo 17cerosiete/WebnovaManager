@@ -170,6 +170,87 @@ $usuario_id = $_SESSION['usuario_id'];
             border-top: 1px solid #e5e7eb;
         }
 
+        .builder-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .builder-panel span {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .builder-panel .btn-secondary {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.9rem;
+        }
+
+        .module-hero {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+
+        .module-hero h1,
+        .module-hero p {
+            margin: 0;
+        }
+
+        .module-feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+
+        .module-feature-item {
+            padding: 1rem;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+        }
+
+        .module-cta {
+            background: #eff6ff;
+            padding: 1.5rem;
+            border-left: 4px solid #2563eb;
+            border-radius: 0.75rem;
+        }
+
+        .module-testimonial {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .module-image-text {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            background: #ffffff;
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+
+        .module-image-text img {
+            width: 100%;
+            border-radius: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .module-image-text {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .btn {
             padding: 0.75rem 1.5rem;
             border: none;
@@ -292,11 +373,19 @@ $usuario_id = $_SESSION['usuario_id'];
             <!-- CONTENIDO PRINCIPAL -->
             <div class="form-group">
                 <label for="editor">Contenido *</label>
+                <div class="builder-panel">
+                    <span>Insertar módulo:</span>
+                    <button type="button" class="btn btn-secondary" onclick="insertModule('hero')">Hero</button>
+                    <button type="button" class="btn btn-secondary" onclick="insertModule('feature')">Características</button>
+                    <button type="button" class="btn btn-secondary" onclick="insertModule('imageText')">Imagen + Texto</button>
+                    <button type="button" class="btn btn-secondary" onclick="insertModule('testimonial')">Testimonial</button>
+                    <button type="button" class="btn btn-secondary" onclick="insertModule('cta')">Llamada a la acción</button>
+                </div>
                 <div class="editor-container">
                     <div id="editor"></div>
                 </div>
                 <small style="color: #6b7280; margin-top: 0.5rem; display: block;">
-                    Editor WYSIWYG con soporte para texto, imágenes, listas, códigos, etc.
+                    Editor WYSIWYG con soporte para texto, imágenes, listas, códigos y bloques modulares.
                 </small>
             </div>
 
@@ -395,6 +484,51 @@ $usuario_id = $_SESSION['usuario_id'];
             counter.classList.remove('warning', 'error');
         }
     });
+
+    // Insertar módulos predefinidos en el editor
+    function insertModule(type) {
+        const cursorIndex = quill.getSelection(true)?.index || quill.getLength();
+        const modules = {
+            hero: `
+                <section class="module-hero">
+                    <h1>Diseña una página web profesional</h1>
+                    <p>Convierte tu contenido en secciones claras, modernas y con impacto visual.</p>
+                </section>
+            `,
+            feature: `
+                <section class="module-feature-list">
+                    <div class="module-feature-item"><strong>Velocidad</strong><p>Diseño optimizado para carga rápida.</p></div>
+                    <div class="module-feature-item"><strong>Responsive</strong><p>Se adapta a cualquier dispositivo.</p></div>
+                    <div class="module-feature-item"><strong>Fácil edición</strong><p>Gestiona tu contenido sin necesidad de código.</p></div>
+                </section>
+            `,
+            imageText: `
+                <section class="module-image-text">
+                    <div>
+                        <h2>Imagen + Texto</h2>
+                        <p>Este bloque es perfecto para presentar servicios o casos de éxito con una imagen descriptiva.</p>
+                    </div>
+                    <div><img src="https://via.placeholder.com/600x400" alt="Ejemplo de página"></div>
+                </section>
+            `,
+            testimonial: `
+                <section class="module-testimonial">
+                    <blockquote>"Gracias a esta plataforma, mi web se ve profesional y se actualiza en segundos."</blockquote>
+                    <p><strong>Cliente satisfecho</strong> - Empresa X</p>
+                </section>
+            `,
+            cta: `
+                <section class="module-cta">
+                    <h2>¿Listo para lanzar tu página?</h2>
+                    <p>Agrega un botón de llamada a la acción y convierte visitantes en clientes.</p>
+                </section>
+            `
+        };
+
+        const html = modules[type] || '';
+        quill.clipboard.dangerouslyPasteHTML(cursorIndex, html);
+        quill.setSelection(cursorIndex + 1);
+    }
 
     // Submit del formulario
     document.getElementById('pageForm').addEventListener('submit', function(e) {

@@ -30,6 +30,9 @@ require_once '../config/sessions.php';
 // Importar la conexión de config/db.php
 require_once '../config/db.php';
 
+// Forzar JSON response on every login request
+header('Content-Type: application/json; charset=utf-8');
+
 // =====================================================
 // 2.5 VALIDACIÓN CRÍTICA DE CONEXIÓN Y CHARSET
 // =====================================================

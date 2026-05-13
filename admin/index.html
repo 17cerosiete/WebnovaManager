@@ -142,7 +142,7 @@
             type="email"
             id="email"
             name="email"
-            placeholder="usuario"
+            placeholder="admin@webnova.com"
             required
           >
         </div>
@@ -166,11 +166,11 @@
         <button type="submit" class="btn-login">Iniciar Sesión</button>
       </form>
       
-      <!--div class="demo-info">
+      <div class="demo-info">
         <strong>🔓 Credenciales de demo:</strong>
         Email: <code>admin@webnova.com</code><br>
         Contraseña: <code>0000</code>
-      </div-->
+      </div>
     </div>
   </div>
   
@@ -178,6 +178,11 @@
     // Verificar si ya hay sesión PHP en servidor
     // Esto se hará en middleware/auth.php (próximo paso)
     // Por ahora, solo manejamos el formulario
+
+    // Si esta página se abrió desde file://, avisar al usuario
+    if (window.location.protocol === 'file:') {
+      document.getElementById('alert').innerHTML = '<div class="alert alert-danger">✗ Abre esta página desde el servidor: <code>http://localhost/WebnovaManager/admin/index.html</code></div>';
+    }
 
     // Manejar login con AJAX
     document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -198,28 +203,33 @@
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include',  // ⚠️ CRÍTICO: Incluir cookies de sesión
+        credentials: 'include',  // ⚠️ Importante: Incluir cookies de sesión
         body: 'email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password)
       })
-      .then(response => response.json())
-      .then(data => {
+      .then(async response => {
+        const text = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch (error) {
+          throw new Error('Respuesta inesperada del servidor: ' + text);
+        }
+
         if (data.success) {
-          // ✓ Login exitoso
           alertDiv.innerHTML = '<div class="alert alert-success">✓ Acceso concedido. Redirigiendo...</div>';
           setTimeout(() => {
-            // Redirigir a dashboard
             window.location.href = 'dashboard.php';
           }, 800);
         } else {
-          // ✗ Error
-          alertDiv.innerHTML = '<div class="alert alert-danger">✗ ' + data.error + '</div>';
+          alertDiv.innerHTML = '<div class="alert alert-danger">✗ ' + (data.error || 'Error al iniciar sesión') + '</div>';
           btn.disabled = false;
           btn.textContent = 'Iniciar Sesión';
           document.getElementById('password').value = '';
         }
       })
       .catch(error => {
-        alertDiv.innerHTML = '<div class="alert alert-danger">✗ Error de conexión</div>';
+        alertDiv.innerHTML = '<div class="alert alert-danger">✗ ' + error.message + '</div>';
         btn.disabled = false;
         btn.textContent = 'Iniciar Sesión';
         console.error('Error:', error);

@@ -37,7 +37,16 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
 }
 
 // Usar SameSite=Lax para proteger contra CSRF
-header('Set-Cookie: ; SameSite=Lax', false);
+ini_set('session.cookie_samesite', 'Lax');
+
+// Configurar parámetros de cookie antes de iniciar sesión
+$cookieParams = session_get_cookie_params();
+$cookieParams['lifetime'] = 1800;
+$cookieParams['path'] = $cookieParams['path'] ?: '/';
+$cookieParams['secure'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+$cookieParams['httponly'] = true;
+$cookieParams['samesite'] = 'Lax';
+session_set_cookie_params($cookieParams);
 
 // Regenerar ID de sesión cada vez para prevenir session fixation
 // (Esto se hace en login.php, pero aquí lo configuramos por si acaso)

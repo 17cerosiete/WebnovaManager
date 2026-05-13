@@ -40,7 +40,7 @@ echo "<!DOCTYPE html>
   <p>Script automático para reparar problemas comunes en la BD.</p>\n";
 
 // Conectar a BD
-require_once 'config/db.php';
+require_once __DIR__ . '/config/db.php';
 
 if (!$conn || !$conn->ping()) {
   echo "<div class='action error'>

@@ -11,14 +11,30 @@
 
 // PRIMER PASO: Verificar autenticación
 require_once '../middleware/auth.php';
+require_once '../config/db.php';
 
 // Si llegamos aquí: usuario está logueado ✓
 $usuario_nombre = $_SESSION['usuario_nombre'];
+$usuario_email = $_SESSION['usuario_email'] ?? '';
 $usuario_rol = $_SESSION['usuario_rol'];
 $usuario_id = $_SESSION['usuario_id'];
 
-// Conectar BD para estadísticas
-require_once '../config/db.php';
+// Obtener estadísticas
+$stats = [];
+$result = $conn->query("SELECT COUNT(*) as total FROM usuarios");
+$stats['usuarios'] = $result->fetch_assoc()['total'];
+
+$result = $conn->query("SELECT COUNT(*) as total FROM paginas WHERE publicada = 1");
+$stats['paginas_publicadas'] = $result->fetch_assoc()['total'];
+
+$result = $conn->query("SELECT COUNT(*) as total FROM articulos WHERE publicado = 1");
+$stats['articulos_publicados'] = $result->fetch_assoc()['total'];
+
+$result = $conn->query("SELECT COUNT(*) as total FROM paginas");
+$stats['paginas_total'] = $result->fetch_assoc()['total'];
+
+$result = $conn->query("SELECT COUNT(*) as total FROM articulos");
+$stats['articulos_total'] = $result->fetch_assoc()['total'];
 
 ?>
 <!DOCTYPE html>
@@ -218,11 +234,13 @@ require_once '../config/db.php';
       <span>
         <span class="badge badge-<?php echo $usuario_rol; ?>">
           <?php
-          echo match($usuario_rol) {
-            'admin' => '👑 Administrador',
-            'editor' => '✏️ Editor',
-            default => '👤 Usuario'
-          };
+          if ($usuario_rol === 'admin') {
+              echo '👑 Administrador';
+          } elseif ($usuario_rol === 'editor') {
+              echo '✏️ Editor';
+          } else {
+              echo '👤 Usuario';
+          }
           ?>
         </span>
       </span>
@@ -248,19 +266,24 @@ require_once '../config/db.php';
     <!-- ============ DASHBOARD ADMIN ============ -->
     <div class="grid">
       <div class="card">
-        <h3>Usuarios</h3>
-        <div class="card-stat">4</div>
+        <h3>👥 Usuarios</h3>
+        <div class="card-stat"><?php echo $stats['usuarios']; ?></div>
         <div class="card-desc">Usuarios registrados</div>
       </div>
       <div class="card">
-        <h3>Páginas</h3>
-        <div class="card-stat">0</div>
-        <div class="card-desc">Páginas publicadas</div>
+        <h3>📄 Páginas</h3>
+        <div class="card-stat"><?php echo $stats['paginas_publicadas']; ?>/<?php echo $stats['paginas_total']; ?></div>
+        <div class="card-desc">Publicadas / Total</div>
       </div>
       <div class="card">
-        <h3>Artículos</h3>
-        <div class="card-stat">0</div>
-        <div class="card-desc">Posts publicados</div>
+        <h3>📝 Artículos</h3>
+        <div class="card-stat"><?php echo $stats['articulos_publicados']; ?>/<?php echo $stats['articulos_total']; ?></div>
+        <div class="card-desc">Publicados / Total</div>
+      </div>
+      <div class="card">
+        <h3>📊 Actividad</h3>
+        <div class="card-stat"><?php echo $stats['paginas_total'] + $stats['articulos_total']; ?></div>
+        <div class="card-desc">Contenido total</div>
       </div>
     </div>
 

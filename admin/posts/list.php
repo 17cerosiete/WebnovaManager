@@ -207,31 +207,115 @@ $result = $conn->query($query);
             border-color: #2563eb;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #6b7280;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
             margin-top: 2rem;
         }
 
-        .pagination a, .pagination span {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            text-decoration: none;
-            color: #2563eb;
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 250ms;
         }
 
-        .pagination .active {
-            background: #2563eb;
-            color: white;
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-content p {
+            color: #4b5563;
+            line-height: 1.5;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            padding: 1rem 1.5rem;
+            background: #f9fafb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-published {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .actions a {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #2563eb;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 250ms;
+        }
+
+        .actions a:hover {
+            background: #eff6ff;
             border-color: #2563eb;
+        }
+
+        .actions a.danger {
+            color: #dc2626;
+            border-color: #dc2626;
+        }
+
+        .actions a.danger:hover {
+            background: #fef2f2;
         }
     </style>
 </head>
@@ -261,43 +345,38 @@ $result = $conn->query($query);
         <a href="create.php" class="btn btn-primary">➕ Nuevo Artículo</a>
     </div>
 
-    <div class="table-responsive">
+    <div class="cards-grid">
         <?php if ($result->num_rows > 0): ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Autor</th>
-                        <th>Estado</th>
-                        <th>Creado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($post = $result->fetch_assoc()): ?>
-                        <tr>
-                            <td>
-                                <strong><?php echo htmlspecialchars($post['titulo']); ?></strong>
-                            </td>
-                            <td><?php echo htmlspecialchars($post['autor'] ?? 'Sistema'); ?></td>
-                            <td>
-                                <span class="status <?php echo $post['publicado'] ? 'status-published' : 'status-draft'; ?>">
-                                    <?php echo $post['publicado'] ? '✓ Publicado' : '📝 Borrador'; ?>
-                                </span>
-                            </td>
-                            <td><?php echo date('d/m/Y H:i', strtotime($post['fecha_creacion'])); ?></td>
-                            <td>
-                                <div class="actions">
-                                    <a href="edit.php?id=<?php echo $post['id']; ?>">✎ Editar</a>
-                                    <a href="delete.php?id=<?php echo $post['id']; ?>" onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</a>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
+            <?php while ($post = $result->fetch_assoc()): ?>
+                <div class="card">
+                    <div class="card-header">
+                        <a href="edit.php?id=<?php echo $post['id']; ?>" class="card-title">
+                            <?php echo htmlspecialchars($post['titulo']); ?>
+                        </a>
+                        <div class="card-meta">
+                            <span><?php echo htmlspecialchars($post['autor'] ?? 'Sistema'); ?></span>
+                            <span><?php echo date('d/m/Y', strtotime($post['fecha_creacion'])); ?></span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <p><?php 
+                            $contenido = $post['contenido'] ?? '';
+                            echo strip_tags(substr($contenido, 0, 150)) . (strlen(strip_tags($contenido)) > 150 ? '...' : ''); 
+                        ?></p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="status <?php echo $post['publicado'] ? 'status-published' : 'status-draft'; ?>">
+                            <?php echo $post['publicado'] ? '✓ Publicado' : '📝 Borrador'; ?>
+                        </span>
+                        <div class="actions">
+                            <a href="edit.php?id=<?php echo $post['id']; ?>">✎ Editar</a>
+                            <a href="delete.php?id=<?php echo $post['id']; ?>" class="danger" onclick="return confirm('¿Eliminar artículo?')">🗑️ Eliminar</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endwhile; ?>
         <?php else: ?>
-            <div class="empty-state">
+            <div class="empty-state" style="grid-column: 1 / -1;">
                 <p>📭 No hay artículos aún</p>
                 <a href="create.php" class="btn btn-primary">Crear primer artículo</a>
             </div>

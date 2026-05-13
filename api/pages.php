@@ -28,16 +28,38 @@ function respuesta_json($success, $message = '', $data = null) {
     exit();
 }
 
-function registrar_auditoria($usuario_id, $accion, $tabla, $registro_id, $descripcion) {
-    global $conn;
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'desconocida';
+function generar_html_pagina($pagina) {
+    $titulo = htmlspecialchars($pagina['titulo']);
+    $contenido = $pagina['contenido'];
+    $meta_desc = htmlspecialchars($pagina['meta_description'] ?? '');
+    $keywords = htmlspecialchars($pagina['keywords'] ?? '');
 
-    $sql = "INSERT INTO logs_auditoria (usuario_id, accion, tabla, registro_id, descripcion, ip_address)
-            VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ississ", $usuario_id, $accion, $tabla, $registro_id, $descripcion, $ip);
-    $stmt->execute();
-    $stmt->close();
+    $html = <<<HTML
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$titulo}</title>
+    <meta name="description" content="{$meta_desc}">
+    <meta name="keywords" content="{$keywords}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{$titulo}</h1>
+        {$contenido}
+    </div>
+</body>
+</html>
+HTML;
+
+    $filename = '../public/' . $pagina['slug'] . '.html';
+    file_put_contents($filename, $html);
 }
 
 // =====================================================
@@ -79,15 +101,28 @@ if ($action === 'create' && $method === 'POST') {
     $check->close();
 
     // Insertar página
-    $sql = "INSERT INTO paginas (titulo, slug, contenido, autor_id, publicada)
-            VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO paginas (titulo, slug, contenido, meta_description, keywords, autor_id, publicada)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssii", $titulo, $slug, $contenido, $usuario_id, $publicada);
+    $stmt->bind_param("sssssii", $titulo, $slug, $contenido, $meta_description, $keywords, $usuario_id, $publicada);
 
     if ($stmt->execute()) {
         $pagina_id = $conn->insert_id;
         $accion = $publicada ? 'CREAR_PUBLICADA' : 'CREAR_BORRADOR';
         registrar_auditoria($usuario_id, $accion, 'paginas', $pagina_id, "Página: $titulo");
+
+        // Generar HTML si está publicada
+        if ($publicada) {
+            $pagina = [
+                'titulo' => $titulo,
+                'slug' => $slug,
+                'contenido' => $contenido,
+                'meta_description' => $meta_description,
+                'keywords' => $keywords
+            ];
+            generar_html_pagina($pagina);
+        }
+
         respuesta_json(true, 'Página creada', ['id' => $pagina_id]);
     } else {
         respuesta_json(false, 'Error al crear página: ' . $conn->error, null);
@@ -106,7 +141,10 @@ elseif ($action === 'update' && $method === 'POST') {
 
     $id = (int)($_POST['id'] ?? 0);
     $titulo = trim($_POST['titulo'] ?? '');
+    $slug = trim($_POST['slug'] ?? '');
     $contenido = $_POST['contenido'] ?? '';
+    $meta_description = trim($_POST['meta_description'] ?? '');
+    $keywords = trim($_POST['keywords'] ?? '');
     $publicada = isset($_POST['publicada']) ? 1 : 0;
     $usuario_id = $_SESSION['usuario_id'];
 
@@ -115,7 +153,7 @@ elseif ($action === 'update' && $method === 'POST') {
     }
 
     // Verificar que la página existe y el usuario es propietario (o admin)
-    $check = $conn->prepare("SELECT autor_id FROM paginas WHERE id = ?");
+    $check = $conn->prepare("SELECT autor_id, slug FROM paginas WHERE id = ?");
     $check->bind_param("i", $id);
     $check->execute();
     $result = $check->get_result();
@@ -125,6 +163,7 @@ elseif ($action === 'update' && $method === 'POST') {
     }
 
     $row = $result->fetch_assoc();
+    $old_slug = $row['slug'];
     if ($row['autor_id'] !== $usuario_id && !esAdmin()) {
         respuesta_json(false, 'Solo el propietario puede editar esta página', null);
     }
@@ -132,13 +171,40 @@ elseif ($action === 'update' && $method === 'POST') {
     $check->close();
 
     // Actualizar
-    $sql = "UPDATE paginas SET titulo = ?, contenido = ?, publicada = ?
+    $sql = "UPDATE paginas SET titulo = ?, slug = ?, contenido = ?, meta_description = ?, keywords = ?, publicada = ?
             WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssii", $titulo, $contenido, $publicada, $id);
+    $stmt->bind_param("sssssii", $titulo, $slug, $contenido, $meta_description, $keywords, $publicada, $id);
 
     if ($stmt->execute()) {
         registrar_auditoria($usuario_id, 'ACTUALIZAR', 'paginas', $id, "Página: $titulo");
+
+        // Generar HTML si está publicada
+        if ($publicada) {
+            $pagina = [
+                'titulo' => $titulo,
+                'slug' => $slug,
+                'contenido' => $contenido,
+                'meta_description' => $meta_description,
+                'keywords' => $keywords
+            ];
+            generar_html_pagina($pagina);
+
+            // Eliminar archivo anterior si slug cambió
+            if ($old_slug !== $slug) {
+                $old_file = '../public/' . $old_slug . '.html';
+                if (file_exists($old_file)) {
+                    unlink($old_file);
+                }
+            }
+        } else {
+            // Si se despublica, eliminar archivo
+            $file = '../public/' . $slug . '.html';
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+
         respuesta_json(true, 'Página actualizada', null);
     } else {
         respuesta_json(false, 'Error al actualizar', null);

@@ -16,7 +16,11 @@
  */
 
 // Iniciar sesión
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
+header('Content-Type: text/html; charset=utf-8');
 
 echo "<!DOCTYPE html>
 <html lang='es'>
@@ -52,7 +56,7 @@ echo "<!DOCTYPE html>
 
 echo "<div class='test'><h3>1️⃣ Conexión a Base de Datos</h3>";
 
-require_once 'config/db.php';
+require_once __DIR__ . '/config/db.php';
 
 if ($conn && $conn->ping()) {
   echo "<p class='status ok'>✓ Conectado a BD: " . DB_NAME . " en " . DB_HOST . "</p>";

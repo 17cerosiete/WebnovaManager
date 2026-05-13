@@ -15,13 +15,24 @@ if (!esEditor()) {
     exit();
 }
 
-// Obtener página actual
+// Obtener página actual y filtros
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 $items_por_pagina = 10;
 $offset = ($page - 1) * $items_por_pagina;
 
+// Construir condición de filtro
+$where = '';
+$params = [];
+$types = '';
+if ($filter === 'published') {
+    $where = 'WHERE p.publicada = 1';
+} elseif ($filter === 'draft') {
+    $where = 'WHERE p.publicada = 0';
+}
+
 // Obtener total de páginas
-$total_result = $conn->query("SELECT COUNT(*) as total FROM paginas");
+$total_result = $conn->query("SELECT COUNT(*) as total FROM paginas $where");
 $total_row = $total_result->fetch_assoc();
 $total_paginas = ceil($total_row['total'] / $items_por_pagina);
 
@@ -30,6 +41,7 @@ $query = "
     SELECT p.id, p.titulo, p.slug, p.publicada, p.fecha_creacion, p.fecha_actualizacion, u.nombre as autor
     FROM paginas p
     LEFT JOIN usuarios u ON p.autor_id = u.id
+    $where
     ORDER BY p.fecha_actualizacion DESC
     LIMIT $items_por_pagina OFFSET $offset
 ";
@@ -316,9 +328,9 @@ $result = $conn->query($query);
 
     <!-- SIDEBAR DE FILTROS -->
     <div class="sidebar">
-        <a href="?page=1" class="active">Todas (<?php echo $total_row['total']; ?>)</a>
-        <a href="?filter=published">Publicadas</a>
-        <a href="?filter=draft">Borradores</a>
+        <a href="?filter=all&page=1" class="<?php echo $filter === 'all' ? 'active' : ''; ?>">Todas (<?php echo $total_row['total']; ?>)</a>
+        <a href="?filter=published&page=1" class="<?php echo $filter === 'published' ? 'active' : ''; ?>">Publicadas</a>
+        <a href="?filter=draft&page=1" class="<?php echo $filter === 'draft' ? 'active' : ''; ?>">Borradores</a>
     </div>
 
     <!-- TABLA DE PÁGINAS -->
