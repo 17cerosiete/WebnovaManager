@@ -2,7 +2,7 @@ const PageService = require('../../services/pageService/PageService');
 const Page = require('../../models/page/Page');
 const TextBlock = require('../blocks/TextBlock');
 const ImageBlock = require('../blocks/ImageBlock');
-// Se podrían añadir más bloques aquí (ej: ContainerBlock, ButtonBlock)
+const ContainerBlock = require('../blocks/ContainerBlock'); // <-- IMPORTACIÓN AGREGADA
 
 /**
  * Componente principal que simula la lógica de un editor visual de páginas.
@@ -25,7 +25,7 @@ class PageBuilderEditor {
 
     /**
      * Añade un nuevo bloque a la página basándose en el tipo seleccionado.
-     * @param {string} type - El tipo de bloque a añadir ('text', 'image', etc.).
+     * @param {string} type - El tipo de bloque a añadir ('text', 'image', 'container', etc.).
      * @param {object} [initialContent={}] - Contenido inicial para el bloque.
      * @param {object} [styles={}] - Estilos iniciales.
      * @returns {Block} El bloque recién añadido.
@@ -42,7 +42,10 @@ class PageBuilderEditor {
             case 'image':
                 newBlock = new ImageBlock(id, initialContent.src || '', initialContent.alt || '', styles);
                 break;
-            // Aquí se añadirían más tipos de bloques (ej: 'container', 'button')
+            case 'container': // <-- CASO AGREGADO
+                newBlock = new ContainerBlock(id, styles);
+                break;
+            // Aquí se añadirían más tipos de bloques (ej: 'button', 'column')
             default:
                 console.error(`Tipo de bloque desconocido: ${type}`);
                 return null;
@@ -104,7 +107,7 @@ class PageBuilderEditor {
             console.log("\n===================================================");
             console.log("✅ PÁGINA GUARDADA EXITOSAMENTE.");
             console.log("JSON de la página guardada:", JSON.stringify(jsonData, null, 2));
-            console.log("===================================================\n");
+            console.log("=============================================================\n");
             return jsonData;
         } catch (error) {
             console.error("[PageBuilderEditor] Error al guardar la página:", error.message);
