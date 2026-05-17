@@ -1,18 +1,33 @@
-// index.js: Punto de entrada de demostración del Page Builder
+// index.js: Punto de entrada de demostración del Page Builder y Login
 const PageBuilderEditor = require('./components/page-builder/PageBuilderEditor');
 const TextBlock = require('./components/blocks/TextBlock');
 const ImageBlock = require('./components/blocks/ImageBlock');
 const ContainerBlock = require('./components/blocks/ContainerBlock');
-const WidgetService = require('./services/widgetService/WidgetService'); // <-- IMPORTACIÓN AGREGADA
+const WidgetService = require('./services/widgetService/WidgetService');
+
+/**
+ * Simula la ejecución de la demostración de Login.
+ * NOTA: Se asume que la lógica de login está en un módulo separado y solo necesita ser llamado.
+ */
+async function runLoginDemo() {
+    console.log("\n\n=================================================================================");
+    console.log("🔑 DEMOSTRACIÓN DE LOGIN (Módulo de Autenticación)");
+    console.log("=================================================================================");
+    
+    // Aquí iría la llamada a la función de login real.
+    // Ejemplo: await AuthService.login('usuario', 'password');
+    console.log("✅ Login Demo: Simulación de inicio de sesión exitoso. El usuario está autenticado.");
+}
+
 
 async function runPageBuilderDemo() {
-    console.log("===================================================================================");
+    console.log("\n\n=================================================================================");
     console.log("🚀 INICIANDO DEMOSTRACIÓN DEL CONSTRUCTOR DE PÁGINAS (V2 - CON WIDGETS REUTILIZABLES)");
-    console.log("===================================================================================");
+    console.log("=================================================================================");
 
     // ====================================================================================
     // FASE 1: DEMOSTRACIÓN DE GESTIÓN DE WIDGETS (AÑADIR ARTÍCULO)
-    // ====================================================================================
+    // ============================================================================================
     console.log("\n\n===================================================================================");
     console.log("⚙️ FASE 1: GESTIÓN DE WIDGETS (CRUD DE MÓDULOS REUTILIZABLES)");
     console.log("===================================================================================");
@@ -23,7 +38,7 @@ async function runPageBuilderDemo() {
     
     // 2. Simular la actualización de un widget (Ej: cambiar el subtítulo)
     console.log("\n--- Actualizando Widget ---");
-    heroWidget.config.subtitle = "¡Ahora con la nueva versión 2.0!";
+    heroWidget.config.subtitle = "¡Ahora con la nueva versión 2.0! (Actualizado en el CMS)";
     WidgetService.saveWidget(heroWidget);
 
     // 3. Obtener el widget de CTA
@@ -32,13 +47,9 @@ async function runPageBuilderDemo() {
     
     // 4. Simular la creación de un widget nuevo (Ej: un widget de testimonios)
     const newWidgetId = 'widget-testimonial-1';
-    const newWidget = require('./models/widget/Widget').constructor(
-        newWidgetId, 
-        'testimonial', 
-        'Testimonio de Cliente', 
-        { quote: '¡Excelente servicio!', author: 'Juan Pérez' }, 
-        {}
-    );
+    // Nota: Se requiere la clase Widget para instanciarlo manualmente
+    const Widget = require('./models/widget/Widget'); 
+    const newWidget = new Widget(newWidgetId, 'testimonial', 'Testimonio de Cliente', { quote: '¡Excelente servicio!', author: 'Juan Pérez' }, {});
     WidgetService.saveWidget(newWidget);
     console.log(`[WidgetService] Widget de Testimonio creado con ID: ${newWidgetId}`);
 
@@ -46,9 +57,9 @@ async function runPageBuilderDemo() {
     // ====================================================================================
     // FASE 2: DEMOSTRACIÓN DEL PAGE BUILDER USANDO WIDGETS
     // ====================================================================================
-    console.log("\n\n===================================================================================");
+    console.log("\n\n=====================================================================================");
     console.log("🏗️ FASE 2: CONSTRUCTOR DE PÁGINAS (USANDO WIDGETS)");
-    console.log("===================================================================================");
+    console.log("===========================================================================================");
 
     // 1. Inicialización del Editor
     const editor = new PageBuilderEditor("Página con Widgets Reutilizables");
@@ -85,13 +96,22 @@ async function runPageBuilderDemo() {
     }
 
     // 9. Demostrar la previsualización del HTML final
-    console.log("\n===================================================================================");
+    console.log("\n=================================================================================");
     console.log("✨ PREVISUALIZACIÓN DEL HTML FINAL GENERADO:");
-    console.log("===================================================================================");
+    console.log("=================================================================================");
     const htmlOutput = editor.getPreviewHtml();
     console.log(htmlOutput);
-    console.log("===================================================================================");
+    console.log("=================================================================================");
     console.log("✅ DEMOSTRACIÓN COMPLETADA. Widgets integrados con éxito.");
 }
 
-runPageBuilderDemo();
+// --- PUNTO DE ENTRADA PRINCIPAL ---
+async function main() {
+    // 1. Ejecutar la demo de Login primero
+    await runLoginDemo();
+    
+    // 2. Ejecutar la demo del Page Builder
+    await runPageBuilderDemo();
+}
+
+main();
