@@ -2,62 +2,96 @@
 const PageBuilderEditor = require('./components/page-builder/PageBuilderEditor');
 const TextBlock = require('./components/blocks/TextBlock');
 const ImageBlock = require('./components/blocks/ImageBlock');
-const ContainerBlock = require('./components/blocks/ContainerBlock'); // <-- IMPORTACIÓN AGREGADA
+const ContainerBlock = require('./components/blocks/ContainerBlock');
+const WidgetService = require('./services/widgetService/WidgetService'); // <-- IMPORTACIÓN AGREGADA
 
 async function runPageBuilderDemo() {
-    console.log("=================================================================");
-    console.log("🚀 INICIANDO DEMOSTRACIÓN DEL CONSTRUCTOR DE PÁGINAS (V1.1 - CON CONTENEDORES)");
-    console.log("=================================================================");
+    console.log("===================================================================================");
+    console.log("🚀 INICIANDO DEMOSTRACIÓN DEL CONSTRUCTOR DE PÁGINAS (V2 - CON WIDGETS REUTILIZABLES)");
+    console.log("===================================================================================");
+
+    // ====================================================================================
+    // FASE 1: DEMOSTRACIÓN DE GESTIÓN DE WIDGETS (AÑADIR ARTÍCULO)
+    // ====================================================================================
+    console.log("\n\n===================================================================================");
+    console.log("⚙️ FASE 1: GESTIÓN DE WIDGETS (CRUD DE MÓDULOS REUTILIZABLES)");
+    console.log("===================================================================================");
+
+    // 1. Obtener el widget de Hero (ya existe por defecto)
+    const heroWidget = WidgetService.getWidgetById('widget-hero-1');
+    console.log(`\n[WidgetService] Widget Hero cargado: ${heroWidget.name}`);
+    
+    // 2. Simular la actualización de un widget (Ej: cambiar el subtítulo)
+    console.log("\n--- Actualizando Widget ---");
+    heroWidget.config.subtitle = "¡Ahora con la nueva versión 2.0!";
+    WidgetService.saveWidget(heroWidget);
+
+    // 3. Obtener el widget de CTA
+    const ctaWidget = WidgetService.getWidgetById('widget-cta-1');
+    console.log(`\n[WidgetService] Widget CTA cargado: ${ctaWidget.name}`);
+    
+    // 4. Simular la creación de un widget nuevo (Ej: un widget de testimonios)
+    const newWidgetId = 'widget-testimonial-1';
+    const newWidget = require('./models/widget/Widget').constructor(
+        newWidgetId, 
+        'testimonial', 
+        'Testimonio de Cliente', 
+        { quote: '¡Excelente servicio!', author: 'Juan Pérez' }, 
+        {}
+    );
+    WidgetService.saveWidget(newWidget);
+    console.log(`[WidgetService] Widget de Testimonio creado con ID: ${newWidgetId}`);
+
+
+    // ====================================================================================
+    // FASE 2: DEMOSTRACIÓN DEL PAGE BUILDER USANDO WIDGETS
+    // ====================================================================================
+    console.log("\n\n===================================================================================");
+    console.log("🏗️ FASE 2: CONSTRUCTOR DE PÁGINAS (USANDO WIDGETS)");
+    console.log("===================================================================================");
 
     // 1. Inicialización del Editor
-    const editor = new PageBuilderEditor("Mi Página Estructurada");
+    const editor = new PageBuilderEditor("Página con Widgets Reutilizables");
     let page = editor.page;
 
-    console.log("\n--- PASO 1: AÑADIENDO BLOQUES ESTRUCTURALES ---");
+    console.log("\n--- PASO 1: AÑADIENDO WIDGETS Y BLOQUES ---");
 
-    // 2. Añadir un contenedor principal
-    const container1 = editor.addBlock('container', {}, { css: 'padding: 20px; border: 1px solid #ccc;' });
+    // 2. Añadir el widget Hero (usando su ID)
+    const heroBlock = editor.addBlock('widget', { widgetId: 'widget-hero-1' });
     
-    // 3. Añadir un bloque de texto dentro del contenedor
-    const textBlock1 = editor.addBlock('text', { content: "Bienvenido a nuestro nuevo CMS. Este contenido está dentro de un contenedor." });
+    // 3. Añadir un contenedor estructural
+    const container = editor.addBlock('container', {}, { css: 'padding: 20px;' });
     
-    // 4. Añadir un bloque de imagen
-    const imageBlock = editor.addBlock('image', { src: 'https://via.placeholder.com/800x400', alt: 'Imagen de ejemplo' });
+    // 4. Añadir un widget de texto (usando su ID)
+    const textWidgetBlock = editor.addBlock('widget', { widgetId: 'widget-text-1' });
+    
+    // 5. Añadir un widget de Testimonio (el que acabamos de crear)
+    const testimonialBlock = editor.addBlock('widget', { widgetId: 'widget-testimonial-1' });
 
-    // 5. Añadir otro contenedor (simulando una sección de columnas)
-    const container2 = editor.addBlock('container', {}, { css: 'display: flex; justify-content: space-between; padding: 20px;' });
-    
-    // 6. Añadir un bloque de texto dentro del segundo contenedor
-    const textBlock2 = editor.addBlock('text', { content: "Esta es la columna de texto." });
-    
-    // 7. Añadir otro bloque de texto para simular la segunda columna
-    const textBlock3 = editor.addBlock('text', { content: "Y esta es la columna de contenido secundario." });
+    // 6. Añadir un widget CTA
+    const ctaBlock = editor.addBlock('widget', { widgetId: 'widget-cta-1' });
 
 
-    // 8. Demostrar la actualización de contenido (Editar el texto del primer bloque)
+    // 7. Demostrar la actualización de contenido (Editar el texto del widget de texto)
     console.log("\n--- PASO 2: ACTUALIZANDO CONTENIDO ---");
-    editor.updateBlockContent(textBlock1.id, 'content', "¡El contenido ha sido actualizado y ahora está mejor estructurado!");
+    editor.updateBlockContent(textWidgetBlock.id, 'content', "Este texto fue actualizado después de usar el widget.");
 
-    // 9. Demostrar la eliminación de un bloque (Eliminar la imagen)
-    console.log("\n--- PASO 3: ELIMINANDO BLOQUES ---");
-    editor.removeBlock(imageBlock.id);
-
-    // 10. Demostrar el guardado de la página
-    console.log("\n--- PASO 4: GUARDANDO LA PÁGINA ---");
+    // 8. Demostrar el guardado de la página
+    console.log("\n--- PASO 3: GUARDANDO LA PÁGINA ---");
     try {
         await editor.savePage();
     } catch (e) {
         console.error("Fallo al guardar la página.");
     }
 
-    // 11. Demostrar la previsualización del HTML final
-    console.log("\n=================================================================");
+    // 9. Demostrar la previsualización del HTML final
+    console.log("\n===================================================================================");
     console.log("✨ PREVISUALIZACIÓN DEL HTML FINAL GENERADO:");
-    console.log("==================================================================");
+    console.log("===================================================================================");
     const htmlOutput = editor.getPreviewHtml();
     console.log(htmlOutput);
-    console.log("=================================================================");
-    console.log("✅ DEMOSTRACIÓN COMPLETADA.");
+    console.log("===================================================================================");
+    console.log("✅ DEMOSTRACIÓN COMPLETADA. Widgets integrados con éxito.");
 }
 
 runPageBuilderDemo();

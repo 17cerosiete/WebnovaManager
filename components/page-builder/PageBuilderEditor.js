@@ -2,7 +2,9 @@ const PageService = require('../../services/pageService/PageService');
 const Page = require('../../models/page/Page');
 const TextBlock = require('../blocks/TextBlock');
 const ImageBlock = require('../blocks/ImageBlock');
-const ContainerBlock = require('../blocks/ContainerBlock'); // <-- IMPORTACIÓN AGREGADA
+const ContainerBlock = require('../blocks/ContainerBlock');
+const WidgetService = require('../../services/widgetService/WidgetService'); // <-- IMPORTACIÓN AGREGADA
+const Widget = require('../../models/widget/Widget'); // <-- IMPORTACIÓN AGREGADA
 
 /**
  * Componente principal que simula la lógica de un editor visual de páginas.
@@ -25,7 +27,7 @@ class PageBuilderEditor {
 
     /**
      * Añade un nuevo bloque a la página basándose en el tipo seleccionado.
-     * @param {string} type - El tipo de bloque a añadir ('text', 'image', 'container', etc.).
+     * @param {string} type - El tipo de bloque a añadir ('text', 'image', 'container', 'widget', etc.).
      * @param {object} [initialContent={}] - Contenido inicial para el bloque.
      * @param {object} [styles={}] - Estilos iniciales.
      * @returns {Block} El bloque recién añadido.
@@ -42,10 +44,24 @@ class PageBuilderEditor {
             case 'image':
                 newBlock = new ImageBlock(id, initialContent.src || '', initialContent.alt || '', styles);
                 break;
-            case 'container': // <-- CASO AGREGADO
+            case 'container':
                 newBlock = new ContainerBlock(id, styles);
                 break;
-            // Aquí se añadirían más tipos de bloques (ej: 'button', 'column')
+            case 'widget': // <-- CASO AGREGADO: Widget
+                // Aquí asumimos que el contenido inicial es el ID del widget a usar.
+                const widgetId = initialContent.widgetId;
+                if (!widgetId) {
+                    console.error("Debe proporcionar un widgetId para añadir un widget.");
+                    return null;
+                }
+                const widgetInstance = WidgetService.getWidgetById(widgetId);
+                if (!widgetInstance) {
+                    console.error(`Widget con ID ${widgetId} no encontrado.`);
+                    return null;
+                }
+                // Usamos el widget como bloque de página
+                newBlock = widgetInstance; 
+                break;
             default:
                 console.error(`Tipo de bloque desconocido: ${type}`);
                 return null;
@@ -85,7 +101,7 @@ class PageBuilderEditor {
             return false;
         }
 
-        // Actualización genérica del contenido. Los bloques específicos deberían tener métodos de actualización.
+        // Actualización genérica del contenido.
         if (block.content && block.content[key] !== undefined) {
             block.content[key] = value;
             console.log(`[PageBuilderEditor] Contenido del bloque ${blockId} actualizado: ${key} = "${value}"`);
