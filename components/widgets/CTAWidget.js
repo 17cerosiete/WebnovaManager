@@ -1,4 +1,4 @@
-const Widget = require('../../models/widget/Widget');
+import Widget from '../../models/widget/Widget.js';
 
 /**
  * Widget de Llamada a la Acción (Call to Action).
@@ -11,10 +11,11 @@ class CTAWidget extends Widget {
     renderHtml() {
         const { buttonText, buttonUrl } = this.config;
         return `
-            <div class="widget widget-cta" style="${this.styles.css || ''}">
+            <div class="widget widget-cta" data-id="${this.id}" style="${this.styles.css || ''}">
                 <p>¿Listo para empezar?</p>
                 <a href="${buttonUrl}" class="btn-cta">${buttonText}</a>
             </div>
         `;
     }
 }
+export default CTAWidget;

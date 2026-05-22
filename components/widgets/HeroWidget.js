@@ -1,4 +1,4 @@
-const Widget = require('../../models/widget/Widget');
+import Widget from '../../models/widget/Widget.js';
 
 /**
  * Widget para banners de héroe.
@@ -11,7 +11,7 @@ class HeroWidget extends Widget {
     renderHtml() {
         const { headline, subtitle } = this.config;
         return `
-            <div class="widget widget-hero" style="${this.styles.css || ''}">
+            <div class="widget widget-hero" data-id="${this.id}" style="${this.styles.css || ''}">
                 <div class="hero-content">
                     <h1>${headline}</h1>
                     <p>${subtitle}</p>
@@ -22,4 +22,4 @@ class HeroWidget extends Widget {
     }
 }
 
-module.exports = HeroWidget;
+export default HeroWidget;

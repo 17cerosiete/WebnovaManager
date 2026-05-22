@@ -1,10 +1,10 @@
-const PageService = require('../../services/pageService/PageService');
-const Page = require('../../models/page/Page');
-const TextBlock = require('../blocks/TextBlock');
-const ImageBlock = require('../blocks/ImageBlock');
-const ContainerBlock = require('../blocks/ContainerBlock');
-const WidgetService = require('../../services/widgetService/WidgetService'); // <-- IMPORTACIÓN AGREGADA
-const Widget = require('../../models/widget/Widget'); // <-- IMPORTACIÓN AGREGADA
+import PageService from '../../services/pageService/PageService.js';
+import Page from '../../models/page/Page.js';
+import TextBlock from '../blocks/TextBlock.js';
+import ImageBlock from '../blocks/ImageBlock.js';
+import ContainerBlock from '../blocks/ContainerBlock.js';
+import WidgetService from '../../services/widgetService/WidgetService.js';
+import Widget from '../../models/widget/Widget.js';
 
 /**
  * Componente principal que simula la lógica de un editor visual de páginas.
@@ -140,4 +140,4 @@ class PageBuilderEditor {
     }
 }
 
-module.exports = PageBuilderEditor;
+export default PageBuilderEditor;

@@ -1,4 +1,4 @@
-const Page = require('../../models/page/Page');
+import Page from '../../models/page/Page.js';
 
 /**
  * Servicio encargado de manejar la lógica de negocio para la creación y gestión de páginas.
@@ -56,4 +56,4 @@ class PageService {
     }
 }
 
-module.exports = new PageService();
+export default new PageService();

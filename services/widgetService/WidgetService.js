@@ -1,7 +1,7 @@
-const Widget = require('../../models/widget/Widget');
-const HeroWidget = require('../../components/widgets/HeroWidget');
-const CTAWidget = require('../../components/widgets/CTAWidget');
-const TextWidget = require('../../components/widgets/TextWidget');
+import Widget from '../../models/widget/Widget.js';
+import HeroWidget from '../../components/widgets/HeroWidget.js';
+import CTAWidget from '../../components/widgets/CTAWidget.js';
+import TextWidget from '../../components/widgets/TextWidget.js';
 
 /**
  * Servicio encargado de gestionar el catálogo de widgets reutilizables.
@@ -9,29 +9,24 @@ const TextWidget = require('../../components/widgets/TextWidget');
  */
 class WidgetService {
     constructor() {
-        // Almacenamiento de widgets por ID
         this.widgetsStore = new Map();
-        this.initializeDefaultWidgets();
+        this.fetchWidgets();
     }
 
     /**
      * Inicializa widgets de ejemplo para la demostración.
      */
-    initializeDefaultWidgets() {
-        // Creamos un widget de ejemplo de Hero
-        const heroId = 'widget-hero-1';
-        const hero = new HeroWidget(heroId, 'hero', 'Banner Principal', { headline: 'Bienvenido a nuestro CMS', subtitle: 'Construye páginas potentes.' }, {});
-        this.widgetsStore.set(heroId, hero);
-
-        // Creamos un widget de ejemplo de CTA
-        const ctaId = 'widget-cta-1';
-        const cta = new CTAWidget(ctaId, 'cta', 'Llamada a la Acción', { buttonText: 'Contáctanos Hoy', buttonUrl: '#' }, {});
-        this.widgetsStore.set(ctaId, cta);
-        
-        // Creamos un widget de texto genérico
-        const textId = 'widget-text-1';
-        const text = new TextWidget(textId, 'text', 'Texto de Contenido', { content: 'Este es un texto reutilizable.' }, {});
-        this.widgetsStore.set(textId, text);
+    async fetchWidgets() {
+        try {
+            const response = await fetch('../../api/widgets.php');
+            const widgets = await response.json();
+            widgets.forEach(w => {
+                this.widgetsStore.set(w.id.toString(), w);
+            });
+            console.log(`[WidgetService] ${widgets.length} widgets cargados desde la API.`);
+        } catch (e) {
+            console.error("[WidgetService] Error cargando widgets:", e);
+        }
     }
 
     /**
@@ -40,8 +35,9 @@ class WidgetService {
      * @returns {Widget | null} La instancia del widget o null.
      */
     getWidgetById(widgetId) {
-        const widget = this.widgetsStore.get(widgetId);
-        return widget ? new (widget.constructor) (widget.id, widget.type, widget.name, widget.config, widget.styles) : null;
+        const id = widgetId.toString();
+        const widget = this.widgetsStore.get(id);
+        return widget ? widget : null;
     }
 
     /**
@@ -67,4 +63,4 @@ class WidgetService {
     }
 }
 
-module.exports = new WidgetService();
+export default new WidgetService();

@@ -1,4 +1,4 @@
-const BaseBlock = require('./BaseBlock');
+import BaseBlock from './BaseBlock.js';
 
 /**
  * Bloque contenedor. No tiene contenido visible, sino que aplica estilos
@@ -17,10 +17,10 @@ class ContainerBlock extends BaseBlock {
      */
     renderHtml() {
         // Usamos un div con una clase específica para que el CSS lo maneje.
-        return `<div class="block block-container" style="${this.styles.css || ''}">
+        return `<div class="block block-container" data-id="${this.id}" style="${this.styles.css || ''}">
             <!-- Contenido de los bloques hijos se renderizará aquí -->
         </div>`;
     }
 }
 
-module.exports = ContainerBlock;
+export default ContainerBlock;

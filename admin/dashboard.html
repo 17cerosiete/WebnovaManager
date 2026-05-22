@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebNova Manager - Dashboard</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <style>
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+    
+    .sidebar {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      padding: 0;
+      position: fixed;
+      height: 100vh;
+      width: 250px;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-header {
+      padding: 2rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+    
+    .nav-item {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      transition: all 250ms;
+      border-left: 3px solid transparent;
+    }
+    
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-left-color: #3b82f6;
+    }
+    
+    .nav-item.active {
+      background: rgba(59, 130, 246, 0.1);
+      border-left-color: #3b82f6;
+      color: #3b82f6;
+    }
+    
+    .sidebar-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #3b82f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      padding: 2rem;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-top: 4px solid;
+    }
+    
+    .stat-card.primary {
+      border-top-color: #3b82f6;
+    }
+    
+    .stat-card.success {
+      border-top-color: #10b981;
+    }
+    
+    .stat-card.warning {
+      border-top-color: #f59e0b;
+    }
+    
+    .stat-card.danger {
+      border-top-color: #ef4444;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section h3 {
+      margin-top: 0;
+      color: #1f2937;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 1rem;
+    }
+    
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    
+    .action-btn {
+      padding: 1rem;
+      background: #f3f4f6;
+      border: 2px solid transparent;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 250ms;
+      text-align: center;
+      color: #1f2937;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .action-btn:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    
+    .recent-list {
+      list-style: none;
+    }
+    
+    .recent-item {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+    
+    .recent-item:last-child {
+      border-bottom: none;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .status-published {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-draft {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .btn-logout {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 250ms;
+    }
+    
+    .btn-logout:hover {
+      background: #dc2626;
+    }
+    
+    @media (max-width: 768px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .sidebar-nav {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>📊 WebNova</h2>
+      </div>
+      
+      <div class="sidebar-nav">
+        <div class="nav-item active" onclick="navigate('dashboard')">
+          📈 Dashboard
+        </div>
+        <div class="nav-item" onclick="navigate('pages')">
+          📄 Páginas
+        </div>
+        <div class="nav-item" onclick="navigate('posts')">
+          📝 Artículos
+        </div>
+        <div class="nav-item" onclick="navigate('categories')">
+          🏷️ Categorías
+        </div>
+        <div class="nav-item" onclick="navigate('settings')">
+          ⚙️ Configuración
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div id="userName">Admin</div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <h1>Dashboard</h1>
+        <a href="../public/index.html" target="_blank" style="padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border-radius: 0.5rem; text-decoration: none;">👁️ Ver Sitio Público</a>
+      </div>
+      
+      <!-- Stats -->
+      <div class="stats-grid" id="statsContainer">
+        <div class="stat-card primary">
+          <div class="stat-number" id="statPages">-</div>
+          <div class="stat-label">Páginas Publicadas</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-number" id="statPosts">-</div>
+          <div class="stat-label">Artículos Publicados</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-number" id="statCategories">-</div>
+          <div class="stat-label">Categorías</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-number" id="statViews">-</div>
+          <div class="stat-label">Total de Vistas</div>
+        </div>
+      </div>
+      
+      <!-- Dashboard Content -->
+      <div class="dashboard-grid">
+        <!-- Quick Actions -->
+        <div class="section">
+          <h3>🚀 Acciones Rápidas</h3>
+          <div class="quick-actions">
+            <a class="action-btn" onclick="navigate('pages')">➕ Nueva Página</a>
+            <a class="action-btn" onclick="navigate('posts')">✍️ Nuevo Artículo</a>
+            <a class="action-btn" onclick="navigate('categories')">🏷️ Nueva Categoría</a>
+            <a class="action-btn" onclick="navigate('settings')">⚙️ Configurar</a>
+          </div>
+        </div>
+        
+        <!-- Recent Pages -->
+        <div class="section">
+          <h3>📄 Páginas Recientes</h3>
+          <ul class="recent-list" id="recentPages"></ul>
+        </div>
+        
+        <!-- Recent Posts -->
+        <div class="section">
+          <h3>📝 Artículos Recientes</h3>
+          <ul class="recent-list" id="recentPosts"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="../assets/js/db.js"></script>
+  <script>
+    // Verificar autenticación
+    if (!DB.isAuthenticated()) {
+      window.location.href = 'index.html';
+    }
+    
+    // Obtener usuario
+    const session = DB.getSession();
+    document.getElementById('userName').textContent = session.user.name;
+    document.getElementById('userAvatar').textContent = session.user.name[0].toUpperCase();
+    
+    // Cargar estadísticas
+    function loadStats() {
+      const stats = DB.getStats();
+      document.getElementById('statPages').textContent = stats.publishedPages;
+      document.getElementById('statPosts').textContent = stats.publishedPosts;
+      document.getElementById('statCategories').textContent = stats.totalCategories;
+      document.getElementById('statViews').textContent = stats.totalViews.toLocaleString();
+    }
+    
+    // Cargar contenido reciente
+    function loadRecent() {
+      // Páginas recientes
+      const pages = DB.getPages('published').slice(0, 3);
+      const pagesHtml = pages.map(p => `
+        <li class="recent-item">
+          <span>${p.title}</span>
+          <span class="status-badge status-published">Publicado</span>
+        </li>
+      `).join('');
+      document.getElementById('recentPages').innerHTML = pagesHtml || '<li class="recent-item">No hay páginas</li>';
+      
+      // Artículos recientes
+      const posts = DB.getPosts('published').slice(0, 3);
+      const postsHtml = posts.map(p => `
+        <li class="recent-item">
+          <span>${p.title}</span>
+          <span class="status-badge status-published">Publicado</span>
+        </li>
+      `).join('');
+      document.getElementById('recentPosts').innerHTML = postsHtml || '<li class="recent-item">No hay artículos</li>';
+    }
+    
+    // Navegación
+    function navigate(page) {
+      window.location.href = `${page}.html`;
+    }
+    
+    // Logout
+    function logout() {
+      if (confirm('¿Deseas cerrar sesión?')) {
+        DB.logout();
+        window.location.href = 'index.html';
+      }
+    }
+    
+    // Inicializar
+    loadStats();
+    loadRecent();
+  </script>
+</body>
+</html>

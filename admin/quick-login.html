@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebNova Manager - Acceso Rápido</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+    }
+
+    .container {
+      background: white;
+      padding: 3rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      color: #2563eb;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 0.875rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 250ms;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 250ms;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .info {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: #0c4a6e;
+    }
+
+    .info strong {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 WebNova Manager</h1>
+    <p>Selecciona un usuario para acceder</p>
+
+    <form id="quickLoginForm">
+      <div class="form-group">
+        <label for="usuario">Usuario de Prueba</label>
+        <select id="usuario" name="usuario" required>
+          <option value="">-- Selecciona un usuario --</option>
+          <option value="admin@webnova.com|Carlos González|admin">👤 Carlos González (Admin)</option>
+          <option value="sergio@webnova.com|Sergio Martínez|editor">✏️ Sergio Martínez (Editor)</option>
+          <option value="ester@webnova.com|Ester López|usuario">👁️ Ester López (Usuario)</option>
+          <option value="admin@webnova.com|Admin WEBNOVA|admin">⚙️ Admin WEBNOVA (Admin)</option>
+        </select>
+      </div>
+
+      <button type="submit">Acceder</button>
+
+      <div class="info">
+        <strong>ℹ️ Modo de Prueba</strong>
+        Acceso rápido sin contraseña. <strong>No usar en producción.</strong>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('quickLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const select = document.getElementById('usuario');
+      const [email, nombre, rol] = select.value.split('|');
+      const button = document.querySelector('button');
+
+      button.disabled = true;
+      button.textContent = 'Accediendo...';
+
+      try {
+        const response = await fetch('quick-login.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          credentials: 'include',
+          body: `email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombre)}&rol=${encodeURIComponent(rol)}`
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Acceso exitoso
+          setTimeout(() => {
+            window.location.href = 'dashboard.php';
+          }, 500);
+        } else {
+          alert('❌ Error: ' + data.error);
+          button.disabled = false;
+          button.textContent = 'Acceder';
+        }
+      } catch (error) {
+        alert('❌ Error de conexión');
+        button.disabled = false;
+        button.textContent = 'Acceder';
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>

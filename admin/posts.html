@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebNova Manager - Gestionar Artículos</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <style>
+    body { background: #f9fafb; }
+    
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-container {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background: #f3f4f6;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 250ms;
+    }
+    
+    .btn-edit {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-family: inherit;
+    }
+    
+    .form-group textarea {
+      min-height: 200px;
+      resize: vertical;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .btn-primary, .btn-secondary {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .status-published {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-draft {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="page-header">
+      <h1>Gestionar Artículos</h1>
+      <button class="btn-small" style="background: #3b82f6; color: white; padding: 0.75rem 1.5rem;" onclick="openNewPostModal()">
+        ✍️ Nuevo Artículo
+      </button>
+    </div>
+    
+    <div class="table-container" id="postsTableContainer"></div>
+  </div>
+  
+  <!-- Modal -->
+  <div class="modal" id="postModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Nuevo Artículo</h2>
+        <button onclick="closePostModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+      </div>
+      
+      <form id="postForm">
+        <div class="form-group">
+          <label for="postTitle">Título *</label>
+          <input type="text" id="postTitle" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="postSlug">URL (slug) *</label>
+          <input type="text" id="postSlug" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="postCategory">Categoría *</label>
+            <select id="postCategory" required></select>
+          </div>
+          <div class="form-group">
+            <label for="postStatus">Estado *</label>
+            <select id="postStatus">
+              <option value="draft">Borrador</option>
+              <option value="published">Publicado</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="postExcerpt">Resumen (excerpt) *</label>
+          <input type="text" id="postExcerpt" required maxlength="200">
+        </div>
+        
+        <div class="form-group">
+          <label for="postContent">Contenido *</label>
+          <textarea id="postContent" required></textarea>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closePostModal()">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar Artículo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="../assets/js/db.js"></script>
+  <script>
+    if (!DB.isAuthenticated()) {
+      window.location.href = 'index.html';
+    }
+    
+    let currentEditId = null;
+    
+    function loadCategories() {
+      const categories = DB.getCategories();
+      const select = document.getElementById('postCategory');
+      select.innerHTML = categories.map(cat => 
+        `<option value="${cat.id}">${cat.name}</option>`
+      ).join('');
+    }
+    
+    function renderPosts() {
+      const posts = DB.getPosts();
+      
+      if (posts.length === 0) {
+        document.getElementById('postsTableContainer').innerHTML = '<div class="empty-state">No hay artículos aún.</div>';
+        return;
+      }
+      
+      const rows = posts.map(post => {
+        const cat = DB.getCategoryById(post.categoryId);
+        return `
+          <tr>
+            <td><strong>${post.title}</strong></td>
+            <td>${cat ? cat.name : 'Sin categoría'}</td>
+            <td><span class="status-badge status-${post.status}">${post.status === 'published' ? 'Publicado' : 'Borrador'}</span></td>
+            <td>${new Date(post.createdAt).toLocaleDateString('es-ES')}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-small btn-edit" onclick="editPost(${post.id})">Editar</button>
+                <button class="btn-small btn-delete" onclick="deletePost(${post.id})">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('postsTableContainer').innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Categoría</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+    
+    function openNewPostModal() {
+      currentEditId = null;
+      document.getElementById('modalTitle').textContent = 'Nuevo Artículo';
+      document.getElementById('postForm').reset();
+      document.getElementById('postStatus').value = 'draft';
+      document.getElementById('postModal').classList.add('active');
+    }
+    
+    function closePostModal() {
+      document.getElementById('postModal').classList.remove('active');
+      document.getElementById('postForm').reset();
+      currentEditId = null;
+    }
+    
+    function editPost(id) {
+      const post = DB.getPostById(id);
+      if (!post) return;
+      
+      currentEditId = id;
+      document.getElementById('modalTitle').textContent = 'Editar Artículo';
+      document.getElementById('postTitle').value = post.title;
+      document.getElementById('postSlug').value = post.slug;
+      document.getElementById('postCategory').value = post.categoryId;
+      document.getElementById('postExcerpt').value = post.excerpt;
+      document.getElementById('postContent').value = post.content;
+      document.getElementById('postStatus').value = post.status;
+      document.getElementById('postModal').classList.add('active');
+    }
+    
+    function deletePost(id) {
+      if (!confirm('¿Estás seguro?')) return;
+      DB.deletePost(id);
+      renderPosts();
+    }
+    
+    document.getElementById('postForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const postData = {
+        title: document.getElementById('postTitle').value,
+        slug: document.getElementById('postSlug').value,
+        excerpt: document.getElementById('postExcerpt').value,
+        content: document.getElementById('postContent').value,
+        categoryId: parseInt(document.getElementById('postCategory').value),
+        status: document.getElementById('postStatus').value,
+        author: DB.getSession().user.email
+      };
+      
+      if (currentEditId) {
+        DB.updatePost(currentEditId, postData);
+      } else {
+        DB.createPost(postData);
+      }
+      
+      closePostModal();
+      renderPosts();
+    });
+    
+    loadCategories();
+    renderPosts();
+  </script>
+</body>
+</html>

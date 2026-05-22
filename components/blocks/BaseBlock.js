@@ -1,4 +1,4 @@
-const Block = require('../../models/page/Block');
+import Block from '../../models/page/Block.js';
 
 /**
  * Clase base para todos los componentes de bloques.
@@ -21,4 +21,4 @@ class BaseBlock extends Block {
     }
 }
 
-module.exports = BaseBlock;
+export default BaseBlock;

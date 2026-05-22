@@ -1,4 +1,4 @@
-const Block = require('./Block');
+import Block from './Block.js';
 
 /**
  * Representa la estructura completa de una página.
@@ -35,6 +35,24 @@ class Page {
     }
 
     /**
+     * Mueve un bloque hacia arriba o abajo en la estructura.
+     * @param {string} blockId - El ID del bloque a mover.
+     * @param {string} direction - 'up' o 'down'.
+     * @returns {boolean} True si se movió, False si no fue posible.
+     */
+    moveBlock(blockId, direction) {
+        const index = this.blocks.findIndex(b => b.id === blockId);
+        if (index === -1) return false;
+
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= this.blocks.length) return false;
+
+        const [block] = this.blocks.splice(index, 1);
+        this.blocks.splice(newIndex, 0, block);
+        return true;
+    }
+
+    /**
      * Genera el HTML completo de la página renderizando todos los bloques.
      * @returns {string} El HTML completo.
      */
@@ -65,4 +83,4 @@ class Page {
     }
 }
 
-module.exports = Page;
+export default Page;

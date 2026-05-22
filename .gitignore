@@ -1,0 +1,11 @@
+# Archivos a ignorar
+*.log
+*.tmp
+config/db-local.php
+.env
+node_modules/
+vendor/
+.DS_Store
+Thumbs.db
+
+.aider*

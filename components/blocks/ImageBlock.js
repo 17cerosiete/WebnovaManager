@@ -1,4 +1,4 @@
-const BaseBlock = require('./BaseBlock');
+import BaseBlock from './BaseBlock.js';
 
 /**
  * Bloque para incrustar imágenes.
@@ -12,11 +12,11 @@ class ImageBlock extends BaseBlock {
         const src = this.content.src;
         const alt = this.content.alt;
         return `
-            <div class="block block-image" style="${this.styles.css || ''}">
+            <div class="block block-image" data-id="${this.id}" style="${this.styles.css || ''}">
                 <img src="${src}" alt="${alt}" style="max-width: 100%; height: auto;">
             </div>
         `;
     }
 }
 
-module.exports = ImageBlock;
+export default ImageBlock;
