@@ -121,7 +121,7 @@ class PageBuilderEditor {
             // El servicio maneja la lógica de persistencia y el logging.
             const jsonData = await PageService.savePage(this.page);
             console.log("\n===================================================");
-            console.log("✅ PÁGINA GUARDADA EXITOSAMENTE.");
+            console.log("PAGINA GUARDADA EXITOSAMENTE.");
             console.log("JSON de la página guardada:", JSON.stringify(jsonData, null, 2));
             console.log("=============================================================\n");
             return jsonData;

@@ -13,10 +13,12 @@ if ($id === 0) {
     exit();
 }
 
-$query = "DELETE FROM widgets WHERE id = $id";
-if ($conn->query($query)) {
+$stmt = $conn->prepare('DELETE FROM widgets WHERE id = ?');
+$stmt->bind_param('i', $id);
+if ($stmt->execute()) {
     header('Location: list.php?success=deleted');
 } else {
     header('Location: list.php?error=dbfail');
 }
+$stmt->close();
 ?>

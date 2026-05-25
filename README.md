@@ -1,56 +1,41 @@
-# 🚀 WebNova Manager - CMS
+# WebNova Manager - CMS
 
-Sistema de Gestión de Contenidos simple y funcional.
+Sistema de gestion de contenidos para el TFG de WebNova Digital S.L.
 
-## ⚡ Acceso Rápido
+## Acceso
 
-```
-URL: http://localhost/WebnovaManager/admin/
-```
+URL local:
 
-**Modo Desarrollo:** Acceso automático sin contraseña.
-
-### Usuarios de Prueba (pueden cambiarse en quick-login.html):
-- 👤 **Carlos González** (Admin)
-- ✏️ **Sergio Martínez** (Editor)  
-- 👁️ **Ester López** (Usuario)
-
-## 📁 Estructura
-
-```
-WebnovaManager/
-├── admin/          → Panel de administración y dashboards
-├── api/            → Endpoints de API
-├── assets/         → CSS, JS, imágenes
-├── auth/           → Lógica de autenticación
-├── config/         → Configuración (BD, sesiones, dev-mode)
-├── middleware/     → Middleware de autenticación
-├── public/         → Sitio público
-├── utils/          → Funciones auxiliares
-├── uploads/        → Archivos subidos
-└── database.sql    → Schema de BD
+```text
+http://localhost/WebnovaManager/admin/
 ```
 
-## 🔧 Instalación
+El proyecto esta en modo desarrollo y permite acceso rapido desde `admin/quick-login.html`.
 
-1. Copiar proyecto a `c:\xampp\htdocs\WebnovaManager\`
-2. Importar `database.sql` en phpMyAdmin
-3. Acceder a `http://localhost/WebnovaManager/admin/`
+## Funciones principales
 
-## 🛠️ Componentes
+- Gestion de paginas con bloques editables.
+- Widgets reutilizables con esquema de claves estandar.
+- Vista previa de paginas antes de guardar.
+- Publicacion de paginas mediante `public/page.php?slug=...`.
+- Bootstrap automatico de base de datos para entorno XAMPP.
 
-- **Backend:** PHP 7.4+ con MySQLi
-- **Frontend:** HTML5, CSS3, JavaScript vanilla
-- **BD:** MySQL con UTF-8mb4
-- **Sesiones:** PHP nativo
+## Estructura
 
-## 📝 Notas
+```text
+admin/       Panel de administracion
+api/         Endpoints PHP
+assets/      CSS y JavaScript
+config/      Conexion y configuracion
+docs/        Documentacion tecnica del proyecto
+public/      Sitio publico
+utils/       Helpers de autenticacion y renderizado
+```
 
-- **DEV_MODE activo:** Permite acceso sin autenticación (config/dev-mode.php)
-- Para producción: Desactivar DEV_MODE en config/dev-mode.php
-- Base de datos: webnova_db
-- Usuario MySQL: root (sin password por defecto en XAMPP)
+## Widget schema
 
----
+El contrato de claves para widgets esta documentado en:
 
-**Status:** ✅ Limpio y listo para usar
+```text
+docs/WIDGET_SCHEMA.md
+```

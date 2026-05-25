@@ -290,7 +290,7 @@ $result = $conn->query($query);
 
 <!-- NAVBAR -->
 <nav class="navbar">
-    <h1>📊 WebNova Manager</h1>
+    <h1>WebNova Manager</h1>
     <div class="user-info">
         <div>
             <p><?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
@@ -310,8 +310,8 @@ $result = $conn->query($query);
 
     <!-- HEADER -->
     <div class="header">
-        <h2>📄 Gestión de Páginas</h2>
-        <a href="create.php" class="btn btn-primary">➕ Nueva Página</a>
+        <h2>Gestion de paginas</h2>
+        <a href="create.php" class="btn btn-primary">Nueva pagina</a>
     </div>
 
     <!-- SIDEBAR DE FILTROS -->
@@ -347,18 +347,18 @@ $result = $conn->query($query);
                             <td><?php echo htmlspecialchars($page_row['autor'] ?? 'Sistema'); ?></td>
                             <td>
                                 <span class="status <?php echo $page_row['publicada'] ? 'status-published' : 'status-draft'; ?>">
-                                    <?php echo $page_row['publicada'] ? '✓ Publicada' : '📝 Borrador'; ?>
+                                    <?php echo $page_row['publicada'] ? 'Publicada' : 'Borrador'; ?>
                                 </span>
                             </td>
                             <td><?php echo date('d/m/Y H:i', strtotime($page_row['fecha_creacion'])); ?></td>
                             <td><?php echo date('d/m/Y H:i', strtotime($page_row['fecha_actualizacion'])); ?></td>
                             <td>
                                 <div class="actions">
-                                    <a href="edit.php?id=<?php echo $page_row['id']; ?>">✎ Editar</a>
-                                    <a href="view.php?id=<?php echo $page_row['id']; ?>">👁️ Ver</a>
+                                    <a href="edit.php?id=<?php echo $page_row['id']; ?>">Editar</a>
+                                    <a href="view.php?id=<?php echo $page_row['id']; ?>">Ver</a>
                                     <form method="POST" action="delete.php" style="display: inline;">
                                         <input type="hidden" name="id" value="<?php echo $page_row['id']; ?>">
-                                        <button type="submit" onclick="return confirm('¿Eliminar esta página?')" style="color: #ef4444;">🗑️ Eliminar</button>
+                                        <button type="submit" onclick="return confirm('¿Eliminar esta pagina?')" style="color: #ef4444;">Eliminar</button>
                                     </form>
                                 </td>
                             </tr>
@@ -367,8 +367,8 @@ $result = $conn->query($query);
                 </table>
         <?php else: ?>
             <div class="empty-state">
-                <p>📭 No hay páginas creadas aún</p>
-                <a href="create.php" class="btn btn-primary">Crear primera página</a>
+                <p>No hay paginas creadas aun</p>
+                <a href="create.php" class="btn btn-primary">Crear primera pagina</a>
             </div>
         <?php endif; ?>
     </div>

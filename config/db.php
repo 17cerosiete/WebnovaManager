@@ -81,6 +81,24 @@ function webnova_ensure_user(mysqli $conn, string $email, string $nombre, string
     ];
 }
 
+function webnova_ensure_widget(mysqli $conn, string $nombre, string $tipo, string $configJson) {
+    $stmt = $conn->prepare('SELECT id FROM widgets WHERE nombre = ? LIMIT 1');
+    $stmt->bind_param('s', $nombre);
+    $stmt->execute();
+    $exists = $stmt->get_result()->num_rows > 0;
+    $stmt->close();
+
+    if ($exists) {
+        return;
+    }
+
+    $stmt = $conn->prepare('INSERT INTO widgets (nombre, tipo, config, preview_html) VALUES (?, ?, ?, ?)');
+    $preview = '';
+    $stmt->bind_param('ssss', $nombre, $tipo, $configJson, $preview);
+    $stmt->execute();
+    $stmt->close();
+}
+
 function webnova_bootstrap_database(mysqli $conn) {
     webnova_exec(
         $conn,
@@ -246,18 +264,13 @@ function webnova_bootstrap_database(mysqli $conn) {
 
     $stmt->close();
 
-    $result = $conn->query('SELECT COUNT(*) AS total FROM widgets');
-    $row = $result ? $result->fetch_assoc() : ['total' => 0];
-
-    if ((int)$row['total'] === 0) {
-        webnova_exec(
-            $conn,
-            "INSERT INTO widgets (nombre, tipo, config, preview_html) VALUES
-            ('Hero Principal', 'hero', '{\"title\":\"Bienvenidos a WebNova\",\"subtitle\":\"Creamos tu web ideal\",\"buttonText\":\"Empezar ahora\",\"bgImage\":\"hero.jpg\"}', '<div class=\"hero\"><h1>Bienvenidos...</h1></div>'),
-            ('CTA Contacto', 'cta', '{\"text\":\"Contacta con nosotros hoy mismo\",\"buttonText\":\"Enviar Mensaje\",\"color\":\"blue\"}', '<div class=\"cta\">Contacta con nosotros...</div>'),
-            ('FAQ Servicios', 'faq', '{\"items\":[{\"q\":\"Que hacemos?\",\"a\":\"Diseno web profesional\"}]}', '<div class=\"faq\">FAQ...</div>')"
-        );
-    }
+    webnova_ensure_widget($conn, 'Hero Principal', 'hero', '{"title":"WebNova Digital","subtitle":"Soluciones web responsive para pequenas y medianas empresas.","buttonText":"Solicitar propuesta","buttonUrl":"#","imageUrl":"","imageAlt":"","theme":"dark"}');
+    webnova_ensure_widget($conn, 'CTA Contacto', 'cta', '{"title":"Convierte visitas en clientes","text":"Publica contenidos claros, rapidos y orientados a SEO.","buttonText":"Contactar","buttonUrl":"#","theme":"blue"}');
+    webnova_ensure_widget($conn, 'FAQ Servicios', 'faq', '{"items":[{"q":"Que incluye el CMS?","a":"Gestion de paginas, widgets reutilizables y publicacion responsive."},{"q":"Esta pensado para movil?","a":"Si, los bloques se adaptan a tablet y smartphone."}]}');
+    webnova_ensure_widget($conn, 'Ventajas del Servicio', 'features', '{"title":"Servicios digitales integrales","items":[{"title":"UX y accesibilidad","text":"Interfaces claras y faciles de administrar."},{"title":"Responsive","text":"Paginas adaptadas a movil y tablet."},{"title":"SEO tecnico","text":"Estructura preparada para mejorar visibilidad."}]}');
+    webnova_ensure_widget($conn, 'Testimonio Cliente', 'testimonial', '{"quote":"Ahora podemos actualizar nuestra web sin depender de soporte para cada cambio pequeno.","author":"Cliente WebNova","role":"PYME de servicios"}');
+    webnova_ensure_widget($conn, 'Metricas Web', 'metrics', '{"items":[{"value":"70%","label":"trafico movil esperado"},{"value":"3x","label":"bloques reutilizables"},{"value":"SEO","label":"estructura de publicacion"}]}');
+    webnova_ensure_widget($conn, 'Galeria Proyecto', 'gallery', '{"title":"Galeria del proyecto","items":[{"src":"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80","alt":"Equipo trabajando en una web"},{"src":"https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80","alt":"Panel de analitica digital"}]}');
 }
 
 $conn = webnova_connect_server();

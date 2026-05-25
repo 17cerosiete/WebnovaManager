@@ -1,96 +1,112 @@
 <?php
-/**
- * api/widgets.php
- * API para la gestión de widgets reutilizables.
- */
-
 require_once '../config/db.php';
 require_once '../middleware/auth.php';
+require_once '../utils/render_helpers.php';
 
-// Solo editores y administradores pueden gestionar widgets
+header('Content-Type: application/json');
+
 if (!esEditor()) {
-    header('Content-Type: application/json');
     http_response_code(403);
     echo json_encode(['error' => 'No tienes permisos para acceder a esta API']);
     exit();
 }
 
-// Evitar que cualquier Warning de PHP se cuele en el JSON
-ob_start();
+function webnova_widget_config($value) {
+    if (is_array($value)) {
+        return $value;
+    }
+
+    if (is_string($value)) {
+        $decoded = json_decode($value, true);
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    return null;
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
-switch ($method) {
-    case 'GET':
-        // Listar widgets
-        $result = $conn->query("SELECT * FROM widgets ORDER BY nombre ASC");
-        $widgets = [];
-        while ($row = $result->fetch_assoc()) {
-            $widgets[] = $row;
-        }
-        ob_end_clean(); // Limpiar cualquier basura de PHP antes del JSON
-        header('Content-Type: application/json');
-        echo json_encode($widgets);
+if ($method === 'GET') {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+
+    if ($id) {
+        $stmt = $conn->prepare('SELECT * FROM widgets WHERE id = ? LIMIT 1');
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $widget = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        echo json_encode($widget ?: null);
         exit();
+    }
 
-    case 'POST':
-        // Crear o actualizar widget
-        $input = json_decode(file_get_contents('php://input'), true);
+    $result = $conn->query('SELECT * FROM widgets ORDER BY nombre ASC');
+    $widgets = [];
+    while ($row = $result->fetch_assoc()) {
+        $widgets[] = $row;
+    }
 
-        if (!isset($input['nombre']) || !isset($input['tipo']) || !isset($input['config'])) {
-            header('Content-Type: application/json');
-            http_response_code(400);
-            echo json_encode(['error' => 'Faltan campos obligatorios: nombre, tipo, config']);
-            exit();
-        }
-
-        $nombre = $conn->real_escape_string($input['nombre']);
-        $tipo = $conn->real_escape_string($input['tipo']);
-        $config = $conn->real_escape_string(json_encode($input['config']));
-        $preview = isset($input['preview_html']) ? $conn->real_escape_string($input['preview_html']) : null;
-        $id = isset($input['id']) ? (int)$input['id'] : null;
-
-        if ($id) {
-            // Actualizar
-            $query = "UPDATE widgets SET nombre='$nombre', tipo='$tipo', config='$config', preview_html='$preview' WHERE id=$id";
-        } else {
-            // Crear
-            $query = "INSERT INTO widgets (nombre, tipo, config, preview_html) VALUES ('$nombre', '$tipo', '$config', '$preview')";
-        }
-
-        if ($conn->query($query)) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'id' => $id ?: $conn->insert_id]);
-        } else {
-            header('Content-Type: application/json');
-            http_response_code(500);
-            echo json_encode(['error' => 'Error al guardar el widget: ' . $conn->error]);
-        }
-        break;
-
-    case 'DELETE':
-        // Eliminar widget
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
-        if (!$id) {
-            header('Content-Type: application/json');
-            http_response_code(400);
-            echo json_encode(['error' => 'ID de widget no proporcionado']);
-            exit();
-        }
-
-        $query = "DELETE FROM widgets WHERE id=$id";
-        if ($conn->query($query)) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true]);
-        } else {
-            header('Content-Type: application/json');
-            http_response_code(500);
-            echo json_encode(['error' => 'Error al eliminar el widget: ' . $conn->error]);
-        }
-        break;
-
-    default:
-        header('HTTP/1.1 405 Method Not Allowed');
-        break;
+    echo json_encode($widgets);
+    exit();
 }
+
+if ($method === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (!is_array($input) || empty($input['nombre']) || empty($input['tipo']) || !isset($input['config'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Faltan campos obligatorios: nombre, tipo, config']);
+        exit();
+    }
+
+    $config = webnova_widget_config($input['config']);
+    if ($config === null) {
+        http_response_code(400);
+        echo json_encode(['error' => 'La configuracion debe ser JSON valido']);
+        exit();
+    }
+
+    $id = isset($input['id']) && $input['id'] !== '' ? (int)$input['id'] : null;
+    $nombre = trim($input['nombre']);
+    $tipo = trim($input['tipo']);
+    $configJson = json_encode($config, JSON_UNESCAPED_UNICODE);
+    $preview = webnova_render_widget($tipo, $config);
+
+    if ($id) {
+        $stmt = $conn->prepare('UPDATE widgets SET nombre = ?, tipo = ?, config = ?, preview_html = ? WHERE id = ?');
+        $stmt->bind_param('ssssi', $nombre, $tipo, $configJson, $preview, $id);
+    } else {
+        $stmt = $conn->prepare('INSERT INTO widgets (nombre, tipo, config, preview_html) VALUES (?, ?, ?, ?)');
+        $stmt->bind_param('ssss', $nombre, $tipo, $configJson, $preview);
+    }
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id ?: $stmt->insert_id]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Error al guardar el widget: ' . $stmt->error]);
+    }
+    $stmt->close();
+    exit();
+}
+
+if ($method === 'DELETE') {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    if ($id <= 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID de widget no valido']);
+        exit();
+    }
+
+    $stmt = $conn->prepare('DELETE FROM widgets WHERE id = ?');
+    $stmt->bind_param('i', $id);
+    $ok = $stmt->execute();
+    $stmt->close();
+
+    echo json_encode(['success' => $ok]);
+    exit();
+}
+
+http_response_code(405);
+echo json_encode(['error' => 'Metodo no permitido']);
 ?>
-EOF

@@ -185,7 +185,7 @@ $result = $conn->query($query);
 <body>
 
 <nav class="navbar">
-    <h1>📊 WebNova Manager</h1>
+    <h1>WebNova Manager</h1>
     <a href="../../auth/logout.php" style="color: #ef4444; text-decoration: none; font-weight: 600;">Salir</a>
 </nav>
 
@@ -197,7 +197,7 @@ $result = $conn->query($query);
 
     <div class="header">
         <h2>👥 Gestión de Usuarios</h2>
-        <a href="create.php" class="btn">➕ Nuevo Usuario</a>
+        <a href="create.php" class="btn">Nuevo usuario</a>
     </div>
 
     <div class="table-responsive">
@@ -227,7 +227,7 @@ $result = $conn->query($query);
                                 <div class="actions">
                                     <a href="edit.php?id=<?php echo $user['id']; ?>">✎ Editar</a>
                                     <?php if ($user['id'] !== $_SESSION['usuario_id']): ?>
-                                        <a href="delete.php?id=<?php echo $user['id']; ?>" onclick="return confirm('¿Eliminar usuario?')">🗑️ Eliminar</a>
+                                        <a href="delete.php?id=<?php echo $user['id']; ?>" onclick="return confirm('¿Eliminar usuario?')">Eliminar</a>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -237,7 +237,7 @@ $result = $conn->query($query);
             </table>
         <?php else: ?>
             <div class="empty-state">
-                <p>📭 No hay usuarios</p>
+                <p>No hay usuarios</p>
             </div>
         <?php endif; ?>
     </div>

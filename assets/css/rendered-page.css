@@ -1,0 +1,231 @@
+.admin-preview-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #dbe3ef;
+}
+
+.admin-preview-bar span {
+  display: block;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.admin-preview-bar nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rendered-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.wn-text,
+.wn-panel,
+.wn-cta,
+.wn-faq,
+.wn-image,
+.wn-empty,
+.wn-features,
+.wn-testimonial,
+.wn-metrics,
+.wn-gallery {
+  margin: 0 0 1.25rem;
+}
+
+.wn-text,
+.wn-panel,
+.wn-faq,
+.wn-empty,
+.wn-features,
+.wn-testimonial {
+  background: white;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.wn-text p,
+.wn-panel p,
+.wn-empty p {
+  color: #334155;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.wn-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 360px;
+  margin-bottom: 1.25rem;
+  padding: 3rem 2rem;
+  color: white;
+  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.wn-hero h1 {
+  max-width: 760px;
+  color: white;
+  font-size: 2.6rem;
+  margin-bottom: 1rem;
+}
+
+.wn-hero p {
+  max-width: 680px;
+  color: #dbeafe;
+  font-size: 1.2rem;
+}
+
+.wn-hero a,
+.wn-cta a {
+  display: inline-flex;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+}
+
+.wn-hero img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.wn-theme-light {
+  background: #eef6ff;
+  color: #0f172a;
+}
+
+.wn-theme-light h1,
+.wn-theme-light p {
+  color: #0f172a;
+}
+
+.wn-theme-green {
+  background: #064e3b;
+}
+
+.wn-cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  border-radius: 8px;
+}
+
+.wn-cta p {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #164e63;
+}
+
+.wn-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 560px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.wn-image figcaption {
+  margin-top: 0.5rem;
+  color: #64748b;
+}
+
+.wn-faq details {
+  border: 1px solid #dbe3ef;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: #f8fafc;
+}
+
+.wn-faq summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.wn-features > div,
+.wn-gallery > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.wn-features article,
+.wn-metrics article {
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.wn-testimonial blockquote {
+  margin: 0 0 1rem;
+  color: #0f172a;
+  font-size: 1.35rem;
+  line-height: 1.5;
+}
+
+.wn-testimonial span {
+  color: #64748b;
+}
+
+.wn-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.wn-metrics strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 2rem;
+}
+
+.wn-metrics span {
+  color: #475569;
+}
+
+.wn-gallery img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+@media (max-width: 760px) {
+  .admin-preview-bar,
+  .wn-cta,
+  .wn-hero {
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wn-hero h1 {
+    font-size: 2rem;
+  }
+}

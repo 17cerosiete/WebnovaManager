@@ -38,7 +38,7 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artículos - WebNova Manager</title>
+    <title>Widgets - WebNova Manager</title>
     <style>
         * {
             margin: 0;
@@ -238,7 +238,7 @@ $result = $conn->query($query);
 
 <!-- NAVBAR -->
 <nav class="navbar">
-    <h1>📊 WebNova Manager</h1>
+    <h1>WebNova Manager</h1>
     <div class="user-info">
         <div>
             <p><?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
@@ -256,8 +256,8 @@ $result = $conn->query($query);
     </div>
 
     <div class="header">
-        <h2>📦 Gestión de Widgets</h2>
-        <a href="create.php" class="btn btn-primary">➕ Nuevo Widget</a>
+        <h2>Gestion de widgets</h2>
+        <a href="create.php" class="btn btn-primary">Nuevo widget</a>
     </div>
 
     <div class="table-responsive">
@@ -281,14 +281,14 @@ $result = $conn->query($query);
                             <td><?php echo htmlspecialchars($post['tipo']); ?></td>
                             <td>
                                 <span class="status status-published">
-                                    📦 Módulo
+                                    Modulo
                                 </span>
                             </td>
                             <td><?php echo date('d/m/Y H:i', strtotime($post['fecha_creacion'])); ?></td>
                             <td>
                                 <div class="actions">
-                                    <a href="edit.php?id=<?php echo $post['id']; ?>">✎ Editar</a>
-                                    <a href="delete.php?id=<?php echo $post['id']; ?>" onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</a>
+                                    <a href="edit.php?id=<?php echo $post['id']; ?>">Editar</a>
+                                    <a href="delete.php?id=<?php echo $post['id']; ?>" onclick="return confirm('¿Eliminar?')">Eliminar</a>
                                 </div>
                             </td>
                         </tr>
@@ -297,8 +297,8 @@ $result = $conn->query($query);
             </table>
         <?php else: ?>
             <div class="empty-state">
-                <p>📭 No hay widgets aún</p>
-                <a href="create.php" class="btn btn-primary">Crear primer artículo</a>
+                <p>No hay widgets aun</p>
+                <a href="create.php" class="btn btn-primary">Crear primer widget</a>
             </div>
         <?php endif; ?>
     </div>

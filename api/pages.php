@@ -1,70 +1,123 @@
 <?php
-/**
- * api/pages.php
- * API para la gestión de páginas del CMS.
- */
-
 require_once '../config/db.php';
 require_once '../middleware/auth.php';
 
+header('Content-Type: application/json');
+
 if (!esEditor()) {
-    header('Content-Type: application/json');
     http_response_code(403);
     echo json_encode(['error' => 'No tienes permisos']);
     exit();
 }
 
+function webnova_slug($title) {
+    $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title), '-'));
+    return $slug !== '' ? $slug : 'pagina';
+}
+
+function webnova_unique_slug($conn, $title, $ignoreId = null) {
+    $base = webnova_slug($title);
+    $slug = $base;
+    $counter = 2;
+
+    while (true) {
+        if ($ignoreId) {
+            $stmt = $conn->prepare('SELECT id FROM paginas WHERE slug = ? AND id <> ? LIMIT 1');
+            $stmt->bind_param('si', $slug, $ignoreId);
+        } else {
+            $stmt = $conn->prepare('SELECT id FROM paginas WHERE slug = ? LIMIT 1');
+            $stmt->bind_param('s', $slug);
+        }
+
+        $stmt->execute();
+        $exists = $stmt->get_result()->num_rows > 0;
+        $stmt->close();
+
+        if (!$exists) {
+            return $slug;
+        }
+
+        $slug = $base . '-' . $counter;
+        $counter++;
+    }
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
-switch ($method) {
-    case 'GET':
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
-        if ($id) {
-            $result = $conn->query("SELECT * FROM paginas WHERE id = $id");
-            $page = $result->fetch_assoc();
-            header('Content-Type: application/json');
-            echo json_encode($page);
-        } else {
-            $result = $conn->query("SELECT * FROM paginas ORDER BY fecha_creacion DESC");
-            $pages = [];
-            while ($row = $result->fetch_assoc()) {
-                $pages[] = $row;
-            }
-            header('Content-Type: application/json');
-            echo json_encode($pages);
-        }
-        break;
+if ($method === 'GET') {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
-    case 'POST':
-        $input = json_decode(file_get_contents('php://input'), true);
-        if (!isset($input['title']) || !isset($input['blocks'])) {
-            header('Content-Type: application/json');
-            http_response_code(400);
-            echo json_encode(['error' => 'Faltan datos obligatorios: title, blocks']);
-            exit();
-        }
+    if ($id) {
+        $stmt = $conn->prepare('SELECT * FROM paginas WHERE id = ? LIMIT 1');
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $page = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-        $title = $conn->real_escape_string($input['title']);
-        $slug = $conn->real_escape_string(strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title))));
-        $blocks = $conn->real_escape_string(json_encode($input['blocks']));
-        $autor_id = $_SESSION['usuario_id'];
+        echo json_encode($page ?: null);
+        exit();
+    }
 
-        $id = isset($input['id']) ? (int)$input['id'] : null;
+    $result = $conn->query('SELECT * FROM paginas ORDER BY fecha_actualizacion DESC');
+    $pages = [];
+    while ($row = $result->fetch_assoc()) {
+        $pages[] = $row;
+    }
 
-        if ($id) {
-            $query = "UPDATE paginas SET titulo='$title', slug='$slug', contenido='$blocks' WHERE id=$id";
-        } else {
-            $query = "INSERT INTO paginas (titulo, slug, contenido, autor_id) VALUES ('$title', '$slug', '$blocks', $autor_id)";
-        }
-
-        if ($conn->query($query)) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'id' => $id ?: $conn->insert_id]);
-        } else {
-            header('Content-Type: application/json');
-            http_response_code(500);
-            echo json_encode(['error' => 'Error al guardar página: ' . $conn->error]);
-        }
-        break;
+    echo json_encode($pages);
+    exit();
 }
+
+if ($method === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!is_array($input) || empty($input['title']) || !isset($input['blocks'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Faltan datos obligatorios: title, blocks']);
+        exit();
+    }
+
+    $id = isset($input['id']) && $input['id'] !== '' ? (int)$input['id'] : null;
+    $title = trim($input['title']);
+    $slug = webnova_unique_slug($conn, $title, $id);
+    $blocks = json_encode($input['blocks'], JSON_UNESCAPED_UNICODE);
+    $published = !empty($input['publicada']) ? 1 : 0;
+
+    if ($id) {
+        $stmt = $conn->prepare('UPDATE paginas SET titulo = ?, slug = ?, contenido = ?, publicada = ? WHERE id = ?');
+        $stmt->bind_param('sssii', $title, $slug, $blocks, $published, $id);
+    } else {
+        $authorId = (int)$_SESSION['usuario_id'];
+        $stmt = $conn->prepare('INSERT INTO paginas (titulo, slug, contenido, autor_id, publicada) VALUES (?, ?, ?, ?, ?)');
+        $stmt->bind_param('sssii', $title, $slug, $blocks, $authorId, $published);
+    }
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id ?: $stmt->insert_id, 'slug' => $slug]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Error al guardar pagina: ' . $stmt->error]);
+    }
+    $stmt->close();
+    exit();
+}
+
+if ($method === 'DELETE') {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    if ($id <= 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID de pagina no valido']);
+        exit();
+    }
+
+    $stmt = $conn->prepare('DELETE FROM paginas WHERE id = ?');
+    $stmt->bind_param('i', $id);
+    $ok = $stmt->execute();
+    $stmt->close();
+
+    echo json_encode(['success' => $ok]);
+    exit();
+}
+
+http_response_code(405);
+echo json_encode(['error' => 'Metodo no permitido']);
 ?>

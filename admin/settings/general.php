@@ -137,7 +137,7 @@ while ($row = $result->fetch_assoc()) {
 <body>
 
 <nav class="navbar">
-    <h1>📊 WebNova Manager</h1>
+    <h1>WebNova Manager</h1>
     <a href="../../auth/logout.php" style="color: #ef4444; text-decoration: none; font-weight: 600;">Salir</a>
 </nav>
 
@@ -148,7 +148,7 @@ while ($row = $result->fetch_assoc()) {
     </div>
 
     <div class="form-card">
-        <h2 style="margin-bottom: 1.5rem;">⚙️ Configuración General</h2>
+        <h2 style="margin-bottom: 1.5rem;">Configuracion general</h2>
 
         <form method="POST" action="../../api/settings.php">
 
@@ -193,13 +193,13 @@ while ($row = $result->fetch_assoc()) {
                 </label>
             </div>
 
-            <button type="submit" class="btn">💾 Guardar Configuración</button>
+            <button type="submit" class="btn">Guardar configuracion</button>
 
         </form>
     </div>
 
     <div class="form-card" style="background: #f0f9ff; border-left: 4px solid #2563eb;">
-        <h3 style="color: #2563eb; margin-bottom: 1rem;">ℹ️ Información del Sistema</h3>
+        <h3 style="color: #2563eb; margin-bottom: 1rem;">Informacion del sistema</h3>
         <ul style="line-height: 1.8;">
             <li><strong>BD:</strong> webnova_db</li>
             <li><strong>Usuario BD:</strong> root</li>

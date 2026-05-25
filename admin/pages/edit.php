@@ -6,13 +6,25 @@ if (!esEditor()) {
     header('Location: ../dashboard.php?error=permiso');
     exit();
 }
+
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$stmt = $conn->prepare('SELECT * FROM paginas WHERE id = ? LIMIT 1');
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$page = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$page) {
+    header('Location: list.php?error=notfound');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva pagina - WebNova Manager</title>
+    <title>Editar pagina - WebNova Manager</title>
     <link rel="stylesheet" href="../../assets/css/styles.css">
     <style>
         body { background: #eef2f7; }
@@ -59,10 +71,11 @@ if (!esEditor()) {
 
         <main class="workspace">
             <div class="topbar">
-                <input type="text" id="pageTitle" value="Nueva pagina" aria-label="Titulo de pagina">
-                <label style="display:flex;align-items:center;gap:.5rem;margin:0;"><input type="checkbox" id="pagePublished"> Publicada</label>
+                <input type="text" id="pageTitle" value="<?php echo htmlspecialchars($page['titulo']); ?>" aria-label="Titulo de pagina">
+                <label style="display:flex;align-items:center;gap:.5rem;margin:0;"><input type="checkbox" id="pagePublished" <?php echo $page['publicada'] ? 'checked' : ''; ?>> Publicada</label>
                 <div style="display:flex;gap:.5rem;">
                     <a class="btn btn-secondary" href="list.php">Volver</a>
+                    <a class="btn btn-secondary" href="view.php?id=<?php echo (int)$page['id']; ?>">Ver guardada</a>
                     <button type="button" class="btn btn-secondary" id="previewPage">Vista previa</button>
                     <button type="button" class="btn btn-primary" id="savePage">Guardar</button>
                 </div>
@@ -79,7 +92,7 @@ if (!esEditor()) {
     </div>
 
     <script>
-        window.WEBNOVA_INITIAL_PAGE = null;
+        window.WEBNOVA_INITIAL_PAGE = <?php echo json_encode($page, JSON_UNESCAPED_UNICODE); ?>;
     </script>
     <script src="../../assets/js/page-builder-admin.js"></script>
 </body>
